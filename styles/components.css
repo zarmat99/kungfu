@@ -26,6 +26,7 @@
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     transition: left var(--transition-normal);
+    pointer-events: none;
 }
 
 .btn:hover::before {
@@ -91,6 +92,11 @@
     opacity: 0.6;
     cursor: not-allowed;
     transform: none !important;
+}
+
+/* Fix for button child elements blocking clicks */
+.btn * {
+    pointer-events: none;
 }
 
 /* Form Elements */
@@ -496,66 +502,54 @@
     line-height: 1.6;
 }
 
-/* Modal */
+/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     opacity: 0;
-    transition: opacity var(--transition-normal);
+    transition: opacity 0.3s ease;
 }
 
-.modal-overlay.active {
+.modal-overlay.visible {
     opacity: 1;
 }
 
 .modal-content {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    max-width: 500px;
+    background-color: var(--background-light);
+    padding: 2rem;
+    border-radius: var(--border-radius-large);
     width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow-xl);
-    transform: scale(0.8);
-    transition: transform var(--transition-normal);
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
 }
 
-.modal-overlay.active .modal-content {
+.modal-overlay.visible .modal-content {
     transform: scale(1);
 }
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-lg);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--border-light);
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: var(--space-xs);
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
-}
-
-.modal-close:hover {
-    background: var(--bg-tertiary);
+.modal-content h2 {
+    margin-top: 0;
     color: var(--text-primary);
+}
+
+.modal-content .modal-body {
+    margin: 1.5rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.modal-actions {
+    justify-content: flex-end;
 }
 
 /* Message notifications */
@@ -708,6 +702,11 @@
     color: var(--text-primary);
 }
 
+/* Fix for achievement-close child elements blocking clicks */
+.achievement-close * {
+    pointer-events: none;
+}
+
 /* Dashboard specific styles */
 .dashboard-header {
     text-align: center;
@@ -843,4 +842,378 @@
     .achievement-notification.show {
         transform: translateY(0);
     }
-} 
+}
+
+/* Achievements Page */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.achievements-category-title {
+    grid-column: 1 / -1;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.achievement-card {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-large);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-card.unlocked {
+    border-color: var(--primary-color-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-card.unlocked:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.achievement-card.locked {
+    filter: grayscale(90%);
+    opacity: 0.6;
+}
+
+.achievement-card.locked::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.achievement-card .lock-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    z-index: 2;
+}
+
+.achievement-card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.achievement-card.unlocked .achievement-card-icon {
+    color: var(--primary-color);
+    background: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.achievement-card-title {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.achievement-card-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.session-list-container {
+    padding-top: var(--space-lg);
+}
+
+/* Rewards (Belts) Page */
+#rewards-view .main-header {
+    margin-bottom: 2rem;
+}
+
+.current-belt-overview {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.belt-progress-top-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .belt-progress-top-section {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+#current-belt-main-display .sash-icon {
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
+}
+
+.current-belt-progress {
+    width: 100%;
+    flex: 1;
+}
+
+.progress-hours {
+    text-align: right;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.all-belts-container .container-title {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.sash-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.sash-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--border-radius-large);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.sash-card.locked {
+    opacity: 0.5;
+    filter: grayscale(80%);
+}
+
+.sash-card.unlocked {
+    border-left: 4px solid var(--success);
+}
+
+.sash-icon {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+}
+
+.sash-info {
+    flex: 1;
+}
+
+.sash-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.sash-requirement {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sash-unlocked-badge {
+    color: var(--success);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Settings Page */
+.settings-container {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.setting-card h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.setting-card p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+/* Toast Message */
+.toast-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 150%);
+    background-color: var(--text-primary);
+    color: var(--background-primary);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius-medium);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+    pointer-events: none;
+}
+
+.toast-message.visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+.toast-message.success {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.toast-message.error {
+    background-color: var(--error-color);
+    color: #fff;
+}
+
+/* Sash Characteristics */
+.characteristics-container {
+    width: 100%;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.characteristics-container .container-title {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.characteristics-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.75rem;
+}
+
+.characteristics-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.characteristics-list li i {
+    color: var(--accent-color);
+    margin-top: 4px;
+}
+
+/* New Sash Display Styles */
+.current-belt-display, .sash-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sash-badge {
+    font-size: 3rem;
+    line-height: 1;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-medium);
+    background-color: var(--bg-tertiary);
+}
+
+.sash-badge.small {
+    font-size: 1.5rem;
+    padding: 0.3rem;
+}
+
+.sash-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.sash-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sash-level {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sash-card {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--border-radius-large);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.sash-card.locked {
+    opacity: 0.5;
+    filter: grayscale(80%);
+}
+
+.sash-requirement {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.25rem;
+}
+
+.sash-unlocked-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--success-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.25rem;
+}

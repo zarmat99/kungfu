@@ -127,4 +127,9 @@
 
 .theme-toggle:hover i {
     transform: rotate(180deg);
+}
+
+/* Fix for theme-toggle child elements blocking clicks */
+.theme-toggle * {
+    pointer-events: none;
 } 

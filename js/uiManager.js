@@ -74,7 +74,13 @@ class UIManager {
 
         // Listen for belt unlocks
         window.addEventListener('beltUnlocked', () => {
-            this.updateBeltDisplay();
+            if(this.currentView === 'rewards') {
+                this.updateBeltDisplay();
+            }
+            if(this.currentView === 'dashboard') {
+                this.updateDashboardBeltProgress();
+                this.updateDashboard();
+            }
         });
     }
 
@@ -105,7 +111,9 @@ class UIManager {
             'session-list',
             'calendar',
             'stats',
-            'rewards'
+            'rewards',
+            'achievements',
+            'settings'
         ];
 
         const loadPromises = componentNames.map(name => this.loadComponent(name));
@@ -153,6 +161,10 @@ class UIManager {
                 return this.createStatsComponent();
             case 'rewards':
                 return this.createRewardsComponent();
+            case 'achievements':
+                return this.createAchievementsComponent();
+            case 'settings':
+                return this.createSettingsComponent();
             default:
                 return '<div>Component not found</div>';
         }
@@ -194,11 +206,19 @@ class UIManager {
                             <i class="fas fa-trophy"></i>
                             <span>Belts</span>
                         </div>
+                        <div class="nav-item" data-view="achievements">
+                            <i class="fas fa-medal"></i>
+                            <span>Achievements</span>
+                        </div>
+                        <div class="nav-item" data-view="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </div>
                     </nav>
                 </div>
             </header>
             <button class="theme-toggle" title="Toggle Theme">
-                <i class="fas fa-moon"></i>
+                <i class="fas fa-sun"></i>
             </button>
         `;
     }
@@ -379,31 +399,86 @@ class UIManager {
      */
     createRewardsComponent() {
         return `
-            <div class="rewards-section">
-                <div class="belt-container">
-                    <div class="current-belt">
-                        <h2>Current Belt</h2>
-                        <div id="current-belt-display"></div>
-                        <div id="motivational-message"></div>
-                    </div>
-                    
-                    <div class="belt-progress-container">
-                        <h3>Progress to Next Belt</h3>
-                        <div class="belt-progress-bar">
-                            <div class="belt-progress-fill" id="belt-progress-fill"></div>
+            <div class="view" id="rewards-view">
+                <div class="main-header">
+                    <h1 class="view-title">Belt Progression</h1>
+                    <p class="view-subtitle">Your journey through the ranks of Kung Fu, measured in dedication and time.</p>
+                </div>
+
+                <div class="current-belt-overview card">
+                    <div class="belt-progress-top-section">
+                        <div id="current-belt-main-display" class="current-belt-display">
+                            <!-- Current belt icon loads here -->
                         </div>
-                        <div id="progress-percentage">0%</div>
+                        <div class="current-belt-progress">
+                            <div class="progress-info">
+                                <span>Progress to next sash</span>
+                                <span id="progress-percentage">0%</span>
+                            </div>
+                            <div id="belt-progress-bar" class="progress-bar">
+                                <div id="belt-progress-fill" class="progress-fill"></div>
+                            </div>
+                            <div id="progress-hours-display" class="progress-hours">0 / 0 hours</div>
+                        </div>
                     </div>
-                    
-                    <div class="belt-requirements" id="belt-requirements">
-                        <!-- Requirements will be rendered here -->
+                    <div id="current-belt-characteristics" class="characteristics-container">
+                        <!-- Characteristics will be loaded here -->
                     </div>
                 </div>
-                
-                <div class="achievements-section">
-                    <h2>Achievements</h2>
-                    <div class="achievements-grid grid grid-3" id="achievements-grid">
-                        <!-- Achievements will be rendered here -->
+
+                <div class="all-belts-container">
+                    <h2 class="container-title">All Sashes</h2>
+                    <div class="sash-grid" id="sash-grid">
+                        <!-- All sashes will be dynamically rendered here -->
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Create achievements component
+     */
+    createAchievementsComponent() {
+        return `
+            <div class="view" id="achievements-view">
+                <div class="main-header">
+                    <h1 class="view-title">Achievements</h1>
+                    <p class="view-subtitle">Your collection of unlocked badges and martial arts honors</p>
+                </div>
+                <div class="achievements-grid" id="achievements-grid">
+                    <!-- Achievements will be dynamically loaded here -->
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Create settings component
+     */
+    createSettingsComponent() {
+        return `
+            <div class="view" id="settings-view">
+                <div class="main-header">
+                    <h1 class="view-title">Settings</h1>
+                    <p class="view-subtitle">Manage your application data and preferences.</p>
+                </div>
+                <div class="settings-container">
+                    <div class="setting-card card">
+                        <h3>Data Management</h3>
+                        <p>Export your training data to a file, or import it to restore your progress.</p>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" id="export-data-btn"><i class="fas fa-download"></i> Export Data</button>
+                            <button class="btn btn-secondary" id="import-data-btn"><i class="fas fa-upload"></i> Import Data</button>
+                            <input type="file" id="import-file-input" style="display: none;" accept="application/json">
+                        </div>
+                    </div>
+                    <div class="setting-card card">
+                        <h3>Danger Zone</h3>
+                        <p>Permanently delete all your sessions, progress, and achievements. This cannot be undone.</p>
+                        <div class="form-actions">
+                            <button class="btn btn-error" id="clear-data-btn"><i class="fas fa-exclamation-triangle"></i> Clear All Data</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -451,6 +526,12 @@ class UIManager {
                 break;
             case 'rewards':
                 contentDiv.innerHTML = this.components.rewards;
+                break;
+            case 'achievements':
+                contentDiv.innerHTML = this.components.achievements;
+                break;
+            case 'settings':
+                contentDiv.innerHTML = this.components.settings;
                 break;
         }
         
@@ -552,6 +633,12 @@ class UIManager {
                 break;
             case 'rewards':
                 this.updateBeltDisplay();
+                break;
+            case 'achievements':
+                this.updateAchievements();
+                break;
+            case 'settings':
+                this.initializeSettings();
                 break;
         }
     }
@@ -767,13 +854,10 @@ class UIManager {
      * Initialize stats
      */
     initializeStats() {
-        this.updateStatsDisplay();
-        // Charts will be initialized by chartManager
         if (window.chartManager) {
-            setTimeout(() => {
-                window.chartManager.initializeCharts();
-            }, 100);
+            chartManager.initializeCharts();
         }
+        this.updateStatsDisplay();
     }
 
     /**
@@ -782,76 +866,103 @@ class UIManager {
     updateStatsDisplay() {
         const stats = storage.getStats();
         
-        this.updateElement('total-hours', Math.floor(stats.totalHours || 0));
+        this.updateElement('total-hours', Math.floor(stats.totalHours) || 0);
         this.updateElement('total-sessions', stats.totalSessions || 0);
-        this.updateElement('weekly-hours', Math.floor(stats.weeklyHours || 0));
-        this.updateElement('average-session', Math.floor(stats.averageSessionLength || 0) + 'min');
+        this.updateElement('avg-duration', Math.floor(stats.averageSessionLength) || 0);
+        
+        this.updateElement('weekly-hours', Math.floor(stats.weeklyHours) || 0);
+        this.updateElement('monthly-hours', Math.floor(stats.monthlyHours) || 0);
+
+        if (window.chartManager) {
+            chartManager.updateCharts(stats);
+        }
     }
 
     /**
-     * Update belt display
+     * Update belt display on rewards page
      */
     updateBeltDisplay() {
+        const stats = storage.getStats();
         const currentBelt = rewardSystem.getCurrentBelt();
-        const progress = rewardSystem.getBeltProgress();
+        const beltProgress = rewardSystem.getBeltProgress();
+        const allBelts = rewardSystem.getAllBelts();
         
-        // Update current belt display
-        const currentBeltElement = document.getElementById('current-belt-display');
-        if (currentBeltElement) {
-            currentBeltElement.innerHTML = `
-                <div class="belt-icon belt-${currentBelt.name}">
-                    ${currentBelt.title}
+        // Update main progress display
+        const currentBeltDisplay = document.getElementById('current-belt-main-display');
+        if (currentBeltDisplay) {
+            currentBeltDisplay.innerHTML = `
+                <div class="sash-badge">${currentBelt.badge}</div>
+                <div class="sash-details">
+                    <div class="sash-title">${currentBelt.title.replace(currentBelt.badge, '').trim()}</div>
+                    <div class="sash-level">${currentBelt.level}</div>
                 </div>
             `;
         }
 
-        // Update motivational message
-        const messageElement = document.getElementById('motivational-message');
-        if (messageElement) {
-            messageElement.textContent = rewardSystem.getMotivationalMessage();
-        }
-
-        // Update progress
         const progressFill = document.getElementById('belt-progress-fill');
-        const progressText = document.getElementById('progress-percentage');
-        
         if (progressFill) {
-            progressFill.style.width = progress.progress + '%';
+            progressFill.style.width = `${beltProgress.progress}%`;
+        }
+
+        const progressPercentage = document.getElementById('progress-percentage');
+        if (progressPercentage) {
+            progressPercentage.textContent = `${beltProgress.progress}%`;
         }
         
-        if (progressText) {
-            progressText.textContent = progress.progress + '% to next belt';
+        const progressHours = document.getElementById('progress-hours-display');
+        if (progressHours && beltProgress.nextBelt) {
+            const nextBeltReqs = storage.getBeltRequirements()[beltProgress.nextBelt.name];
+            const hoursReq = nextBeltReqs.find(r => r.type === 'totalHours');
+            if (hoursReq) {
+                progressHours.textContent = `${Math.floor(stats.totalHours || 0)} / ${hoursReq.value} hours`;
+            }
+        } else if (progressHours) {
+             progressHours.textContent = "All sashes earned! Mastery achieved!";
         }
 
-        // Update requirements
-        this.updateBeltRequirements(progress);
-    }
+        // Add characteristics for the current belt
+        const characteristicsContainer = document.getElementById('current-belt-characteristics');
+        if (characteristicsContainer) {
+            if (currentBelt.characteristics && currentBelt.characteristics.length > 0) {
+                characteristicsContainer.innerHTML = `
+                    <h4 class="container-title">Key Characteristics of this Rank</h4>
+                    <ul class="characteristics-list">
+                        ${currentBelt.characteristics.map(char => `<li><i class="fas fa-check-circle"></i> ${char}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                characteristicsContainer.innerHTML = ''; // Clear if no characteristics
+            }
+        }
 
-    /**
-     * Update belt requirements display
-     */
-    updateBeltRequirements(progress) {
-        const container = document.getElementById('belt-requirements');
-        if (!container || !progress.requirements) return;
-
-        container.innerHTML = `
-            <h4>Requirements for ${progress.nextBelt?.title || 'Next Belt'}</h4>
-            <div class="requirements-list">
-                ${progress.requirements.map(req => `
-                    <div class="requirement-item ${req.completed ? 'completed' : ''}">
-                        <i class="fas fa-${req.completed ? 'check-circle' : 'circle'} requirement-icon"></i>
-                        <div class="requirement-content">
-                            <div class="requirement-label">${req.label}</div>
-                            <div class="requirement-progress">${req.progress || 0}%</div>
+        // Update sash grid
+        const sashGrid = document.getElementById('sash-grid');
+        if (sashGrid) {
+            sashGrid.innerHTML = allBelts.map(belt => {
+                const reqs = storage.getBeltRequirements()[belt.name];
+                const hoursReq = reqs && reqs.length > 0 ? reqs.find(r => r.type === 'totalHours') : null;
+                
+                return `
+                    <div class="sash-card ${belt.unlocked ? 'unlocked' : 'locked'}">
+                        <div class="sash-badge small">${belt.badge}</div>
+                        <div class="sash-details">
+                            <div class="sash-title">${belt.title.replace(belt.badge, '').trim()}</div>
+                            ${!belt.unlocked && hoursReq ? 
+                                `<div class="sash-requirement">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${hoursReq.value} hours</span>
+                                </div>` : ''
+                            }
+                            ${belt.unlocked ? `<div class="sash-unlocked-badge"><i class="fas fa-check"></i> Unlocked</div>` : ''}
                         </div>
                     </div>
-                `).join('')}
-            </div>
-        `;
+                `;
+            }).join('');
+        }
     }
 
     /**
-     * Initialize components after initial render
+     * Initialize components on first load
      */
     initializeComponents() {
         // Set today's date as default for session form
@@ -942,20 +1053,34 @@ class UIManager {
      * Update dashboard belt progress
      */
     updateDashboardBeltProgress() {
-        const progress = rewardSystem.getBeltProgress();
         const container = document.getElementById('dashboard-belt-progress');
         if (!container) return;
         
+        const progress = rewardSystem.getBeltProgress();
+        const stats = storage.getStats();
+
+        if (!progress.nextBelt) {
+            container.innerHTML = `
+                <div class="progress-info">
+                    <span>Mastery Achieved!</span>
+                </div>
+                <div class="motivation-message">You have earned the highest sash!</div>
+            `;
+            return;
+        }
+
+        const nextBeltReqs = storage.getBeltRequirements()[progress.nextBelt.name];
+        const hoursReq = nextBeltReqs.find(r => r.type === 'totalHours');
+
         container.innerHTML = `
             <div class="progress-info">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progress.progress}%"></div>
-                </div>
-                <div class="progress-text">${progress.progress}% to next belt</div>
+                <span>Next: ${progress.nextBelt.title}</span>
+                <span>${Math.floor(stats.totalHours)} / ${hoursReq.value} hrs</span>
             </div>
-            <div class="motivation-message">
-                ${rewardSystem.getMotivationalMessage()}
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${progress.progress}%"></div>
             </div>
+            <div class="motivation-message">${rewardSystem.getMotivationalMessage()}</div>
         `;
     }
 
@@ -1080,6 +1205,248 @@ class UIManager {
             card.classList.add(`stagger-${Math.min(index + 1, 5)}`);
             card.classList.add('animate-fadeIn');
         });
+    }
+
+    /**
+     * Update achievements display
+     */
+    updateAchievements() {
+        const grid = document.getElementById('achievements-grid');
+        if (!grid) return;
+
+        // 1. Get standard achievements
+        const unlockedAchievements = rewardSystem.getUnlockedAchievements();
+        const lockedAchievements = rewardSystem.getLockedAchievements();
+        const allAchievements = [...unlockedAchievements, ...lockedAchievements];
+
+        // Group standard achievements by category
+        const categories = allAchievements.reduce((acc, achievement) => {
+            const category = achievement.category || 'General';
+            if (!acc[category]) {
+                acc[category] = [];
+            }
+            acc[category].push(achievement);
+            return acc;
+        }, {});
+
+        // 2. Get sashes and add them as a new "Sashes" category
+        const allSashes = rewardSystem.getAllBelts();
+        categories['Sashes'] = allSashes.map(sash => ({
+            id: sash.name,
+            name: sash.title,
+            description: sash.description,
+            icon: sash.badge, // Use the badge property from the belt definition
+            unlocked: sash.unlocked
+        }));
+        
+        // Define the order for a logical layout
+        const categoryOrder = ['Sashes', 'Cumulative Hours', 'Consistency Rewards', 'Session Milestones'];
+
+        let html = '';
+
+        // 3. Render all categories in the specified order
+        for (const categoryName of categoryOrder) {
+            if (categories[categoryName]) {
+                const achievementsInCategory = categories[categoryName];
+                html += `<h2 class="achievements-category-title">${categoryName}</h2>`;
+
+                achievementsInCategory.forEach(achievement => {
+                    const isUnlocked = achievement.unlocked !== undefined 
+                        ? achievement.unlocked 
+                        : unlockedAchievements.some(a => a.id === achievement.id);
+                    
+                    html += `
+                        <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                            <div class="achievement-card-icon">
+                                ${isUnlocked ? achievement.icon : '<i class="fas fa-lock"></i>'}
+                            </div>
+                            <div class="achievement-card-content">
+                                <h3 class="achievement-card-title">${achievement.name}</h3>
+                                <p class="achievement-card-description">${achievement.description}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        grid.innerHTML = html;
+    }
+
+    /**
+     * Initialize settings page events
+     */
+    initializeSettings() {
+        const exportBtn = document.getElementById('export-data-btn');
+        const importBtn = document.getElementById('import-data-btn');
+        const importInput = document.getElementById('import-file-input');
+        const clearBtn = document.getElementById('clear-data-btn');
+
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => this.handleExportData());
+        }
+
+        if (importBtn && importInput) {
+            importBtn.addEventListener('click', () => importInput.click());
+            importInput.addEventListener('change', (e) => this.handleImportData(e));
+        }
+        
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.handleClearData());
+        }
+    }
+
+    /**
+     * Handle data export
+     */
+    handleExportData() {
+        const data = storage.exportData();
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'kungfu_tracker_settings.json';
+        document.body.appendChild(link);
+        link.click();
+        
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        this.showMessage('Data exported successfully!', 'success');
+    }
+
+    /**
+     * Handle data import
+     */
+    handleImportData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (storage.importData(data)) {
+                    this.showMessage('Data imported successfully! The app will now reload.', 'success');
+                    // Reload the app to reflect changes
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    this.showMessage('Failed to import data. Please check the file format.', 'error');
+                }
+            } catch (error) {
+                this.showMessage('Invalid JSON file. Please check the file and try again.', 'error');
+                console.error('Error parsing imported file:', error);
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    /**
+     * Handle clearing all data
+     */
+    handleClearData() {
+        this.showModal(
+            'Are you sure?',
+            `<p>This will permanently delete all your training data, including sessions, progress, and achievements. This action cannot be undone.</p>
+             <p><strong>Are you sure you want to proceed?</strong></p>`,
+            () => {
+                storage.clearAllData();
+                this.showMessage('All data has been cleared. The app will now reload.', 'success');
+                setTimeout(() => window.location.reload(), 2000);
+            }
+        );
+    }
+
+    /**
+     * Shows a confirmation modal
+     * @param {string} title - The title of the modal
+     * @param {string} message - The HTML content of the modal body
+     * @param {function} onConfirm - The callback function to execute on confirmation
+     */
+    showModal(title, message, onConfirm) {
+        let modal = document.getElementById('confirmation-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'confirmation-modal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content card">
+                    <h2 id="modal-title"></h2>
+                    <div id="modal-body"></div>
+                    <div class="modal-actions form-actions">
+                        <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+                        <button class="btn btn-error" id="modal-confirm-btn">Confirm</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById('modal-cancel-btn').addEventListener('click', () => this.hideModal());
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.hideModal();
+                }
+            });
+        }
+
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-body').innerHTML = message;
+        
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        // Clone and replace the button to remove old event listeners
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        newConfirmBtn.addEventListener('click', () => {
+            onConfirm();
+            this.hideModal();
+        });
+
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('visible'), 10);
+    }
+
+    /**
+     * Hides the confirmation modal
+     */
+    hideModal() {
+        const modal = document.getElementById('confirmation-modal');
+        if (modal) {
+            modal.classList.remove('visible');
+            // Allow animation to finish before hiding
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    /**
+     * Shows a temporary message to the user.
+     * @param {string} message - The message to display.
+     * @param {string} type - 'success' or 'error'.
+     */
+    showMessage(message, type = 'success') {
+        const messageContainer = document.createElement('div');
+        messageContainer.className = `toast-message ${type}`;
+        messageContainer.textContent = message;
+
+        document.body.appendChild(messageContainer);
+
+        // Animate in
+        setTimeout(() => {
+            messageContainer.classList.add('visible');
+        }, 10);
+
+        // Animate out and remove after a delay
+        setTimeout(() => {
+            messageContainer.classList.remove('visible');
+            messageContainer.addEventListener('transitionend', () => {
+                if (messageContainer.parentNode) {
+                    messageContainer.parentNode.removeChild(messageContainer);
+                }
+            }, { once: true });
+        }, 3000); // Message visible for 3 seconds
     }
 
     // Additional methods will be added for specific UI components...

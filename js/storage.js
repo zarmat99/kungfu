@@ -46,12 +46,18 @@ class Storage {
             this.setItem(this.keys.BELTS, beltSystem);
         }
 
-        // Add some sample data if it's the first launch
-        const settings = this.getItem(this.keys.SETTINGS);
-        if (settings.firstLaunch) {
-            this.seedSampleData();
-            settings.firstLaunch = false;
-            this.setItem(this.keys.SETTINGS, settings);
+        // Initialize stats
+        if (!localStorage.getItem(this.keys.STATS)) {
+            const emptyStats = {
+                totalSessions: 0,
+                totalHours: 0,
+                weeklyHours: 0,
+                monthlyHours: 0,
+                averageSessionLength: 0,
+                typeDistribution: {},
+                lastUpdated: Date.now()
+            };
+            this.setItem(this.keys.STATS, emptyStats);
         }
     }
 
@@ -286,74 +292,85 @@ class Storage {
 
     updateBeltProgress(stats) {
         const beltSystem = this.getBeltSystem();
-        const belts = ['white', 'yellow', 'orange', 'green', 'blue', 'brown', 'black'];
-        
-        // Calculate progress based on requirements
+        const belts = [
+            'white', 'yellow', 'green', 'blue', 'purple', 'brown',
+            'black-1dan', 'black-2dan', 'black-3dan', 'black-4dan', 
+            'black-5dan', 'black-6dan', 'black-7dan'
+        ];
         const requirements = this.getBeltRequirements();
-        const currentBeltIndex = belts.indexOf(beltSystem.currentBelt);
         
-        // Check if eligible for next belt
-        if (currentBeltIndex < belts.length - 1) {
-            const nextBelt = belts[currentBeltIndex + 1];
-            const nextRequirements = requirements[nextBelt];
-            
-            let canProgress = true;
-            for (const req of nextRequirements) {
-                if (!this.checkRequirement(req, stats)) {
-                    canProgress = false;
-                    break;
-                }
-            }
-            
-            if (canProgress && !beltSystem.unlockedBelts.includes(nextBelt)) {
-                beltSystem.currentBelt = nextBelt;
-                beltSystem.unlockedBelts.push(nextBelt);
-                this.setItem(this.keys.BELTS, beltSystem);
+        let progressed = true;
+        while(progressed) {
+            progressed = false;
+            const currentBeltIndex = belts.indexOf(beltSystem.currentBelt);
+
+            if (currentBeltIndex < belts.length - 1) {
+                const nextBelt = belts[currentBeltIndex + 1];
+                const nextRequirements = requirements[nextBelt];
                 
-                // Trigger belt unlock event
-                this.triggerBeltUnlock(nextBelt);
+                if (nextRequirements && nextRequirements.length > 0) {
+                    let canProgress = this.checkRequirement(nextRequirements[0], stats);
+                    
+                    if (canProgress && !beltSystem.unlockedBelts.includes(nextBelt)) {
+                        beltSystem.currentBelt = nextBelt;
+                        beltSystem.unlockedBelts.push(nextBelt);
+                        this.triggerBeltUnlock(nextBelt);
+                        progressed = true; // Set to true to check for the next level
+                    }
+                }
             }
         }
         
-        // Update belt system stats
         beltSystem.totalHours = stats.totalHours;
-        beltSystem.weeklyConsistency = this.calculateWeeklyConsistency();
-        beltSystem.trainingVariety = Object.keys(stats.typeDistribution).length;
-        
         this.setItem(this.keys.BELTS, beltSystem);
     }
 
     getBeltRequirements() {
         return {
-            white: [], // Starting belt
+            // Cinture Colorate
+            white: [],
             yellow: [
-                { type: 'totalHours', value: 5, label: 'Complete 5 hours of training' },
-                { type: 'totalSessions', value: 3, label: 'Complete 3 training sessions' }
+                { type: 'totalHours', value: 60, label: '60 ore di allenamento' }
             ],
             orange: [
-                { type: 'totalHours', value: 15, label: 'Complete 15 hours of training' },
-                { type: 'weeklyConsistency', value: 2, label: 'Train 2 times per week for 2 weeks' },
-                { type: 'trainingVariety', value: 2, label: 'Try at least 2 different training types' }
+                { type: 'totalHours', value: 130, label: '130 ore di allenamento' }
             ],
             green: [
-                { type: 'totalHours', value: 35, label: 'Complete 35 hours of training' },
-                { type: 'weeklyConsistency', value: 4, label: 'Maintain weekly consistency' },
-                { type: 'trainingVariety', value: 3, label: 'Master 3 different training types' }
+                { type: 'totalHours', value: 220, label: '220 ore di allenamento' }
             ],
             blue: [
-                { type: 'totalHours', value: 70, label: 'Complete 70 hours of training' },
-                { type: 'weeklyConsistency', value: 8, label: 'Show long-term dedication' },
-                { type: 'trainingVariety', value: 4, label: 'Excel in 4 training types' }
+                { type: 'totalHours', value: 320, label: '320 ore di allenamento' }
             ],
             brown: [
-                { type: 'totalHours', value: 150, label: 'Complete 150 hours of training' },
-                { type: 'weeklyConsistency', value: 16, label: 'Demonstrate mastery through consistency' },
-                { type: 'trainingVariety', value: 5, label: 'Master all major training types' }
+                { type: 'totalHours', value: 450, label: '450 ore di allenamento' }
             ],
-            black: [
-                { type: 'totalHours', value: 300, label: 'Complete 300 hours of training' },
-                { type: 'weeklyConsistency', value: 32, label: 'Achieve true mastery' },
-                { type: 'trainingVariety', value: 6, label: 'Become a complete martial artist' }
+            'black-1duan': [
+                { type: 'totalHours', value: 600, label: '600 ore di allenamento' }
+            ],
+            // Duan post-cintura nera
+            'black-2duan': [
+                { type: 'totalHours', value: 800, label: '800 ore di allenamento' }
+            ],
+            'black-3duan': [
+                { type: 'totalHours', value: 1000, label: '1000 ore di allenamento' }
+            ],
+            'black-4duan': [
+                { type: 'totalHours', value: 1250, label: '1250 ore di allenamento' }
+            ],
+            'black-5duan': [
+                { type: 'totalHours', value: 1500, label: '1500 ore di allenamento' }
+            ],
+            'black-6duan': [
+                { type: 'totalHours', value: 1750, label: '1750 ore di allenamento' }
+            ],
+            'black-7duan': [
+                { type: 'totalHours', value: 2000, label: '2000 ore di allenamento' }
+            ],
+            'black-8duan': [
+                { type: 'totalHours', value: 2250, label: '2250 ore di allenamento' }
+            ],
+            'black-9duan': [
+                { type: 'totalHours', value: 2500, label: '2500 ore di allenamento' }
             ]
         };
     }
@@ -361,13 +378,7 @@ class Storage {
     checkRequirement(requirement, stats) {
         switch (requirement.type) {
             case 'totalHours':
-                return stats.totalHours >= requirement.value;
-            case 'totalSessions':
-                return stats.totalSessions >= requirement.value;
-            case 'weeklyConsistency':
-                return this.calculateWeeklyConsistency() >= requirement.value;
-            case 'trainingVariety':
-                return Object.keys(stats.typeDistribution).length >= requirement.value;
+                return (stats.totalHours || 0) >= requirement.value;
             default:
                 return false;
         }
@@ -390,6 +401,13 @@ class Storage {
         const startOfYear = new Date(date.getFullYear(), 0, 1);
         const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
         return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+    }
+
+    getSessionsInLastDays(days) {
+        const sessions = this.getAllSessions();
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        return sessions.filter(s => new Date(s.date) >= cutoffDate).length;
     }
 
     triggerBeltUnlock(belt) {
@@ -421,21 +439,41 @@ class Storage {
     }
 
     exportData() {
-        return {
-            sessions: this.getAllSessions(),
-            settings: this.getSettings(),
-            belts: this.getBeltSystem(),
-            stats: this.getStats(),
-            exportDate: new Date().toISOString()
-        };
+        const data = {};
+        
+        // Export all the main storage keys
+        Object.values(this.keys).forEach(key => {
+            const value = this.getItem(key);
+            if (value !== null) {
+                data[key] = value;
+            }
+        });
+        
+        // Export achievements
+        const achievements = localStorage.getItem('unlocked_achievements');
+        if (achievements) {
+            data['unlocked_achievements'] = JSON.parse(achievements);
+        }
+        
+        return data;
     }
 
     importData(data) {
         try {
-            if (data.sessions) this.setItem(this.keys.SESSIONS, data.sessions);
-            if (data.settings) this.setItem(this.keys.SETTINGS, data.settings);
-            if (data.belts) this.setItem(this.keys.BELTS, data.belts);
-            if (data.stats) this.setItem(this.keys.STATS, data.stats);
+            // Basic validation
+            if (!data || typeof data !== 'object' || !data['kungfu_sessions'] || !data['kungfu_stats']) {
+                console.error('Invalid data structure for import');
+                return false;
+            }
+
+            // Clear existing data before import
+            this.clearAllData(false); // don't add seed data
+
+            for (const key in data) {
+                if (Object.hasOwnProperty.call(data, key)) {
+                    this.setItem(key, data[key]);
+                }
+            }
             return true;
         } catch (error) {
             console.error('Error importing data:', error);
@@ -443,11 +481,62 @@ class Storage {
         }
     }
 
-    clearAllData() {
+    clearAllData(addSeedData = false) {
+        // Clear all kungfu-related data from localStorage
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('kungfu-')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+
+        // Force clear specific keys to ensure they're gone
         Object.values(this.keys).forEach(key => {
-            this.removeItem(key);
+            localStorage.removeItem(key);
         });
-        this.initializeData();
+
+        // Clear achievements specifically
+        localStorage.removeItem('unlocked_achievements');
+
+        // Reinitialize the belt system to ensure it starts fresh
+        const beltSystem = {
+            currentBelt: 'white',
+            unlockedBelts: ['white'],
+            totalHours: 0,
+            weeklyConsistency: 0,
+            trainingVariety: 0
+        };
+        this.setItem(this.keys.BELTS, beltSystem);
+
+        // Initialize empty stats
+        const emptyStats = {
+            totalSessions: 0,
+            totalHours: 0,
+            weeklyHours: 0,
+            monthlyHours: 0,
+            averageSessionLength: 0,
+            typeDistribution: {},
+            lastUpdated: Date.now()
+        };
+        this.setItem(this.keys.STATS, emptyStats);
+
+        // Initialize empty sessions array
+        this.setItem(this.keys.SESSIONS, []);
+
+        // Reset settings to default
+        const defaultSettings = {
+            theme: 'light',
+            notifications: true,
+            language: 'en',
+            firstLaunch: false
+        };
+        this.setItem(this.keys.SETTINGS, defaultSettings);
+
+        if (addSeedData) {
+            this.seedSampleData();
+        }
     }
 }
 

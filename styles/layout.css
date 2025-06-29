@@ -57,6 +57,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .logo {
@@ -77,6 +79,8 @@
 .nav {
     display: flex;
     gap: var(--space-md);
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .nav-item {
@@ -107,6 +111,11 @@
     font-size: 1.2rem;
 }
 
+/* Fix for nav-item child elements blocking clicks */
+.nav-item * {
+    pointer-events: none;
+}
+
 /* Main Content Area */
 .main-content {
     flex: 1;
@@ -132,6 +141,12 @@
 
 .grid-4 {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.charts-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 /* Flex Layouts */
@@ -266,4 +281,17 @@
     .main-content {
         padding: var(--space-sm);
     }
+}
+
+.stats-overview {
+    margin-bottom: 2.5rem;
+}
+
+.chart-wrapper {
+    margin-bottom: 0.5rem;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+}
+
+.stats-section {
+    margin-top: 2.5rem;
 } 
