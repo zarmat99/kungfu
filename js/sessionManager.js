@@ -6,14 +6,8 @@
 class SessionManager {
     constructor() {
         this.trainingTypes = [
-            'Forms',
-            'Sparring',
-            'Weapons',
-            'Meditation',
-            'Tui Shou',
-            'Conditioning',
-            'Self Defense',
-            'Philosophy'
+            'Shaolin / Yiquan / Taijiquan',
+            'tuishou / sanda'
         ];
         
         this.currentEditingSession = null;
@@ -112,7 +106,13 @@ class SessionManager {
             if (newSession) {
                 this.showSuccessMessage('Training session added successfully!');
                 this.refreshSessions();
-                this.clearForm();
+                
+                // Clear only the notes field, keeping other fields for quick re-entry
+                const notesInput = document.querySelector('#session-form [name="notes"]');
+                if (notesInput) {
+                    notesInput.value = '';
+                }
+                
                 return newSession;
             } else {
                 throw new Error('Failed to save session');

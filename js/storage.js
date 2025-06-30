@@ -292,25 +292,21 @@ class Storage {
 
     updateBeltProgress(stats) {
         const beltSystem = this.getBeltSystem();
-        const belts = [
-            'white', 'yellow', 'green', 'blue', 'purple', 'brown',
-            'black-1dan', 'black-2dan', 'black-3dan', 'black-4dan', 
-            'black-5dan', 'black-6dan', 'black-7dan'
-        ];
-        const requirements = this.getBeltRequirements();
+        const belts = Object.keys(this.getBeltRequirements()); // Get belts directly from requirements definition
         
         let progressed = true;
         while(progressed) {
             progressed = false;
             const currentBeltIndex = belts.indexOf(beltSystem.currentBelt);
-
+        
             if (currentBeltIndex < belts.length - 1) {
                 const nextBelt = belts[currentBeltIndex + 1];
-                const nextRequirements = requirements[nextBelt];
-                
+                const nextRequirements = this.getBeltRequirements()[nextBelt];
+            
                 if (nextRequirements && nextRequirements.length > 0) {
-                    let canProgress = this.checkRequirement(nextRequirements[0], stats);
-                    
+                    // Check if ALL requirements for the next belt are met
+                    const canProgress = nextRequirements.every(req => this.checkRequirement(req, stats));
+            
                     if (canProgress && !beltSystem.unlockedBelts.includes(nextBelt)) {
                         beltSystem.currentBelt = nextBelt;
                         beltSystem.unlockedBelts.push(nextBelt);
@@ -327,27 +323,25 @@ class Storage {
 
     getBeltRequirements() {
         return {
-            // Cinture Colorate
-            white: [],
-            yellow: [
+            'white': [],
+            'yellow': [
                 { type: 'totalHours', value: 60, label: '60 ore di allenamento' }
             ],
-            orange: [
+            'orange': [
                 { type: 'totalHours', value: 130, label: '130 ore di allenamento' }
             ],
-            green: [
+            'green': [
                 { type: 'totalHours', value: 220, label: '220 ore di allenamento' }
             ],
-            blue: [
+            'blue': [
                 { type: 'totalHours', value: 320, label: '320 ore di allenamento' }
             ],
-            brown: [
+            'brown': [
                 { type: 'totalHours', value: 450, label: '450 ore di allenamento' }
             ],
             'black-1duan': [
                 { type: 'totalHours', value: 600, label: '600 ore di allenamento' }
             ],
-            // Duan post-cintura nera
             'black-2duan': [
                 { type: 'totalHours', value: 800, label: '800 ore di allenamento' }
             ],

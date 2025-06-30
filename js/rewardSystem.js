@@ -110,7 +110,7 @@ class RewardSystem {
 
             // Category: Consistency Rewards
             { id: 'consistency-1', name: 'Regular Start (规律的开始)', description: 'You started training consistently.', icon: '🌱', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 7, value: 2 } },
-            { id: 'consistency-2', name: 'Full Week (完整周)', description: 'An intense week of Kung Fu!', icon: '📆', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 10, value: 4 } },
+            { id: 'consistency-2', name: 'Full Week (完整周)', description: 'An intense week of Kung Fu!', icon: '📆', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 10, value: 3 } },
             { id: 'consistency-3', name: 'Full Month (满月)', description: 'Maximum monthly commitment achieved.', icon: '🗓️', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 30, value: 8 } },
             { id: 'consistency-4', name: 'Solid Return (稳固回归)', description: 'You have built a solid cycle.', icon: '🔄', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 60, value: 16 } },
             { id: 'consistency-5', name: 'Constant Quarter (稳定季度)', description: 'A season of progress.', icon: '📈', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 90, value: 24 } },
@@ -206,8 +206,8 @@ class RewardSystem {
         const progressPercentage = requiredForNextBelt > 0 
             ? Math.min(Math.round((progressSinceLastBelt / requiredForNextBelt) * 100), 100)
             : 100;
-
-        return {
+            
+            return {
             progress: progressPercentage,
             requirements: requirements.map(req => ({
                 ...req,
@@ -416,37 +416,38 @@ class RewardSystem {
         unlockedAchievements.push(achievement.id);
         storage.setItem('unlocked_achievements', unlockedAchievements);
         
-        this.showAchievementUnlock(achievement);
+        this.showAchievementUnlockAnimation(achievement);
+        this.playBeltUnlockSound();
+        this.createConfetti(0.25, 0.6);
     }
 
     /**
-     * Show achievement unlock notification
+     * Show achievement unlock ANIMATION (similar to belt unlock)
      */
-    showAchievementUnlock(achievement) {
-        const notification = document.createElement('div');
-        notification.className = 'achievement-notification';
-        notification.innerHTML = `
-            <div class="achievement-content">
-                <i class="${achievement.icon} achievement-icon"></i>
-                <div class="achievement-text">
-                    <h4>Achievement Unlocked!</h4>
-                    <p><strong>${achievement.name}</strong></p>
-                    <p>${achievement.description}</p>
-                </div>
-                <button class="achievement-close" onclick="this.parentElement.parentElement.remove()">
-                    <i class="fas fa-times"></i>
+    showAchievementUnlockAnimation(achievement) {
+        const overlay = document.createElement('div');
+        overlay.className = 'achievement-unlock-overlay';
+
+        overlay.innerHTML = `
+            <div class="achievement-unlock-content">
+                <h2 class="achievement-unlock-title">Achievement Unlocked!</h2>
+                <div class="achievement-unlock-icon">${achievement.icon}</div>
+                <p class="achievement-unlock-name">${achievement.name}</p>
+                <p class="achievement-unlock-description">${achievement.description}</p>
+                <button class="btn btn-primary" onclick="this.parentElement.parentElement.remove()">
+                    Continue (继续)
                 </button>
             </div>
         `;
         
-        document.body.appendChild(notification);
-        
-        // Auto-remove after 5 seconds
+        document.body.appendChild(overlay);
+
+        // Auto-remove after 8 seconds
         setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
             }
-        }, 5000);
+        }, 8000);
     }
 
     /**

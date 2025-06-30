@@ -75,7 +75,7 @@ class UIManager {
         // Listen for belt unlocks
         window.addEventListener('beltUnlocked', () => {
             if(this.currentView === 'rewards') {
-                this.updateBeltDisplay();
+            this.updateBeltDisplay();
             }
             if(this.currentView === 'dashboard') {
                 this.updateDashboardBeltProgress();
@@ -403,8 +403,8 @@ class UIManager {
                 <div class="main-header">
                     <h1 class="view-title">Belt Progression</h1>
                     <p class="view-subtitle">Your journey through the ranks of Kung Fu, measured in dedication and time.</p>
-                </div>
-
+                    </div>
+                    
                 <div class="current-belt-overview card">
                     <div class="belt-progress-top-section">
                         <div id="current-belt-main-display" class="current-belt-display">
@@ -424,8 +424,8 @@ class UIManager {
                     <div id="current-belt-characteristics" class="characteristics-container">
                         <!-- Characteristics will be loaded here -->
                     </div>
-                </div>
-
+                    </div>
+                    
                 <div class="all-belts-container">
                     <h2 class="container-title">All Sashes</h2>
                     <div class="sash-grid" id="sash-grid">
@@ -903,7 +903,7 @@ class UIManager {
         if (progressFill) {
             progressFill.style.width = `${beltProgress.progress}%`;
         }
-
+        
         const progressPercentage = document.getElementById('progress-percentage');
         if (progressPercentage) {
             progressPercentage.textContent = `${beltProgress.progress}%`;
@@ -955,8 +955,8 @@ class UIManager {
                             }
                             ${belt.unlocked ? `<div class="sash-unlocked-badge"><i class="fas fa-check"></i> Unlocked</div>` : ''}
                         </div>
-                    </div>
-                `;
+            </div>
+        `;
             }).join('');
         }
     }
@@ -1060,8 +1060,8 @@ class UIManager {
         const stats = storage.getStats();
 
         if (!progress.nextBelt) {
-            container.innerHTML = `
-                <div class="progress-info">
+        container.innerHTML = `
+            <div class="progress-info">
                     <span>Mastery Achieved!</span>
                 </div>
                 <div class="motivation-message">You have earned the highest sash!</div>
@@ -1077,9 +1077,9 @@ class UIManager {
                 <span>Next: ${progress.nextBelt.title}</span>
                 <span>${Math.floor(stats.totalHours)} / ${hoursReq.value} hrs</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progress.progress}%"></div>
-            </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progress.progress}%"></div>
+                </div>
             <div class="motivation-message">${rewardSystem.getMotivationalMessage()}</div>
         `;
     }
