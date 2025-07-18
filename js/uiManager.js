@@ -349,12 +349,7 @@ class UIManager {
     createStatsComponent() {
         return `
             <div class="stats-section">
-                <div class="stats-overview grid grid-2">
-                    <div class="stats-card">
-                        <i class="fas fa-fire stats-icon"></i>
-                        <div class="stats-value" id="weekly-hours">0</div>
-                        <div class="stats-label">This Week</div>
-                    </div>
+                <div class="stats-overview grid grid-1">
                     <div class="stats-card">
                         <i class="fas fa-chart-line stats-icon"></i>
                         <div class="stats-value" id="average-session">0</div>
@@ -858,7 +853,6 @@ class UIManager {
     updateStatsDisplay() {
         const stats = storage.getStats();
         
-        this.updateElement('weekly-hours', Math.floor(stats.weeklyHours) || 0);
         this.updateElement('average-session', Math.floor(stats.averageSessionLength) || 0);
 
         if (window.chartManager) {
