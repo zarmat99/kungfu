@@ -801,7 +801,7 @@ class UIManager {
         // Add days of the month
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const currentDate = new Date(year, month, day);
-            // Genera la data in formato locale YYYY-MM-DD
+            // Generate date in local YYYY-MM-DD format
             const dateStr = currentDate.getFullYear() + '-' +
                 String(currentDate.getMonth() + 1).padStart(2, '0') + '-' +
                 String(currentDate.getDate()).padStart(2, '0');
