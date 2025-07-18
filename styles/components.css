@@ -429,8 +429,8 @@
 
 .session-count {
     display: inline-block;
-    background: var(--primary-gold, gold);
-    color: var(--text-primary, #222);
+    background: var(--accent-primary);
+    color: var(--text-light);
     font-size: 0.6em;
     font-weight: 700;
     border-radius: 50%;
@@ -438,7 +438,7 @@
     min-height: 1.2em;
     line-height: 1.2em;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     z-index: 2;
 }
 
