@@ -349,17 +349,7 @@ class UIManager {
     createStatsComponent() {
         return `
             <div class="stats-section">
-                <div class="stats-overview grid grid-4">
-                    <div class="stats-card">
-                        <i class="fas fa-clock stats-icon"></i>
-                        <div class="stats-value" id="total-hours">0</div>
-                        <div class="stats-label">Total Hours</div>
-                    </div>
-                    <div class="stats-card">
-                        <i class="fas fa-calendar-check stats-icon"></i>
-                        <div class="stats-value" id="total-sessions">0</div>
-                        <div class="stats-label">Total Sessions</div>
-                    </div>
+                <div class="stats-overview grid grid-2">
                     <div class="stats-card">
                         <i class="fas fa-fire stats-icon"></i>
                         <div class="stats-value" id="weekly-hours">0</div>
@@ -563,17 +553,7 @@ class UIManager {
                     <p id="dashboard-greeting">Welcome back, warrior!</p>
                 </div>
                 
-                <div class="dashboard-stats grid grid-4">
-                    <div class="stats-card hover-lift">
-                        <i class="fas fa-clock stats-icon"></i>
-                        <div class="stats-value" id="dash-total-hours">0</div>
-                        <div class="stats-label">Total Hours</div>
-                    </div>
-                    <div class="stats-card hover-lift">
-                        <i class="fas fa-calendar-check stats-icon"></i>
-                        <div class="stats-value" id="dash-total-sessions">0</div>
-                        <div class="stats-label">Total Sessions</div>
-                    </div>
+                <div class="dashboard-stats grid grid-2">
                     <div class="stats-card hover-lift">
                         <i class="fas fa-fire stats-icon"></i>
                         <div class="stats-value" id="dash-weekly-hours">0</div>
