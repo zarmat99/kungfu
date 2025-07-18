@@ -409,14 +409,7 @@
 }
 
 .calendar-day.has-session::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 6px;
-    height: 6px;
-    background: var(--primary-gold);
-    border-radius: 50%;
+    display: none;
 }
 
 .calendar-day.today {
@@ -424,6 +417,8 @@
     color: var(--text-light);
     font-weight: 700;
 }
+
+
 
 /* Charts */
 .chart-wrapper {
