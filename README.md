@@ -72,7 +72,7 @@ A modern, interactive web application for tracking Kung Fu training sessions, pr
    ```
 
 3. **Start Training**:
-   - The app will load with sample data on first launch
+   - The app will start with no data: everything is empty by default
    - Click "Add Session" to log your first training session
    - Explore the different views: Dashboard, Sessions, Calendar, Statistics, Belts
 
@@ -205,7 +205,7 @@ The app uses CSS custom properties for theming. Edit `styles/themes.css` to cust
 
 ### Importing Data
 1. Data can be imported by setting localStorage values
-2. Use the sample data in `data/seed.json` as a format reference
+2. Use your own exported data as a format reference
 
 ## 🔧 Development
 
