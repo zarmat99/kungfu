@@ -8,7 +8,7 @@ A modern, interactive web application for tracking Kung Fu training sessions, pr
 - **Add Training Sessions**: Log date, duration, training type, and detailed notes
 - **Edit & Delete**: Full CRUD operations for all training sessions
 - **Search & Filter**: Find sessions by type, date range, or search terms
-- **Multiple Training Types**: Forms, Sparring, Weapons, Meditation, Tui Shou, Conditioning, Self Defense, Philosophy
+- **Multiple Training Types**: Shaolin / Yiquan / Taijiquan, tuishou / sanda
 
 ### 📈 Statistics & Analytics
 - **Interactive Charts**: Powered by Chart.js for beautiful data visualization
@@ -169,14 +169,8 @@ kungfu-tracker/
 Edit the `trainingTypes` array in `js/sessionManager.js`:
 ```javascript
 this.trainingTypes = [
-    'Forms',
-    'Sparring',
-    'Weapons',
-    'Meditation',
-    'Tui Shou',
-    'Conditioning',
-    'Self Defense',
-    'Philosophy',
+    'Shaolin / Yiquan / Taijiquan',
+    'tuishou / sanda',
     'Your New Type' // Add your custom type here
 ];
 ```

@@ -70,7 +70,7 @@ class Storage {
                 id: this.generateId(),
                 date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                 duration: 60,
-                type: 'Forms',
+                type: 'Shaolin / Yiquan / Taijiquan',
                 notes: 'Practiced Tiger style form, focused on balance and flow.',
                 timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000
             },
@@ -78,7 +78,7 @@ class Storage {
                 id: this.generateId(),
                 date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                 duration: 90,
-                type: 'Sparring',
+                type: 'tuishou / sanda',
                 notes: 'Great sparring session with advanced techniques.',
                 timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000
             },
@@ -86,7 +86,7 @@ class Storage {
                 id: this.generateId(),
                 date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                 duration: 45,
-                type: 'Meditation',
+                type: 'Shaolin / Yiquan / Taijiquan',
                 notes: 'Deep breathing exercises and mindfulness practice.',
                 timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000
             },
@@ -94,7 +94,7 @@ class Storage {
                 id: this.generateId(),
                 date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                 duration: 75,
-                type: 'Weapons',
+                type: 'tuishou / sanda',
                 notes: 'Staff training - learned new spinning techniques.',
                 timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000
             }
