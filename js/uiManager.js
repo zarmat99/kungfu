@@ -858,12 +858,8 @@ class UIManager {
     updateStatsDisplay() {
         const stats = storage.getStats();
         
-        this.updateElement('total-hours', Math.floor(stats.totalHours) || 0);
-        this.updateElement('total-sessions', stats.totalSessions || 0);
-        this.updateElement('avg-duration', Math.floor(stats.averageSessionLength) || 0);
-        
         this.updateElement('weekly-hours', Math.floor(stats.weeklyHours) || 0);
-        this.updateElement('monthly-hours', Math.floor(stats.monthlyHours) || 0);
+        this.updateElement('average-session', Math.floor(stats.averageSessionLength) || 0);
 
         if (window.chartManager) {
             chartManager.updateCharts(stats);
