@@ -814,8 +814,7 @@ class UIManager {
             
             html += `
                 <div class="${classes}" data-date="${dateStr}">
-                    <span class="calendar-day-number">${day}</span>
-                    ${hasSession ? `<span class="session-count">${hasSession}</span>` : ''}
+                    ${day}
                 </div>
             `;
         }
