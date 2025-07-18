@@ -81,8 +81,9 @@ class SessionManager {
     getSessionsForMonth(year, month) {
         const sessions = storage.getAllSessions();
         return sessions.filter(session => {
-            const sessionDate = new Date(session.date);
-            return sessionDate.getFullYear() === year && sessionDate.getMonth() === month;
+            // session.date is in 'YYYY-MM-DD' format
+            const [y, m] = session.date.split('-');
+            return Number(y) === year && Number(m) === month + 1;
         });
     }
 
