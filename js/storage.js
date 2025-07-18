@@ -62,48 +62,6 @@ class Storage {
     }
 
     /**
-     * Seed sample data for demonstration
-     */
-    seedSampleData() {
-        const sampleSessions = [
-            {
-                id: this.generateId(),
-                date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                duration: 60,
-                type: 'Forms',
-                notes: 'Practiced Tiger style form, focused on balance and flow.',
-                timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000
-            },
-            {
-                id: this.generateId(),
-                date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                duration: 90,
-                type: 'Sparring',
-                notes: 'Great sparring session with advanced techniques.',
-                timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000
-            },
-            {
-                id: this.generateId(),
-                date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                duration: 45,
-                type: 'Meditation',
-                notes: 'Deep breathing exercises and mindfulness practice.',
-                timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000
-            },
-            {
-                id: this.generateId(),
-                date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                duration: 75,
-                type: 'Weapons',
-                notes: 'Staff training - learned new spinning techniques.',
-                timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000
-            }
-        ];
-
-        this.setItem(this.keys.SESSIONS, sampleSessions);
-    }
-
-    /**
      * Generic storage methods
      */
     setItem(key, data) {
@@ -529,7 +487,6 @@ class Storage {
         this.setItem(this.keys.SETTINGS, defaultSettings);
 
         if (addSeedData) {
-            this.seedSampleData();
         }
     }
 }

@@ -8,7 +8,7 @@ A modern, interactive web application for tracking Kung Fu training sessions, pr
 - **Add Training Sessions**: Log date, duration, training type, and detailed notes
 - **Edit & Delete**: Full CRUD operations for all training sessions
 - **Search & Filter**: Find sessions by type, date range, or search terms
-- **Multiple Training Types**: Forms, Sparring, Weapons, Meditation, Tui Shou, Conditioning, Self Defense, Philosophy
+- **Multiple Training Types**: Shaolin / Yiquan / Taijiquan, tuishou / sanda
 
 ### 📈 Statistics & Analytics
 - **Interactive Charts**: Powered by Chart.js for beautiful data visualization
@@ -72,7 +72,7 @@ A modern, interactive web application for tracking Kung Fu training sessions, pr
    ```
 
 3. **Start Training**:
-   - The app will load with sample data on first launch
+   - The app will start with no data: everything is empty by default
    - Click "Add Session" to log your first training session
    - Explore the different views: Dashboard, Sessions, Calendar, Statistics, Belts
 
@@ -169,14 +169,8 @@ kungfu-tracker/
 Edit the `trainingTypes` array in `js/sessionManager.js`:
 ```javascript
 this.trainingTypes = [
-    'Forms',
-    'Sparring',
-    'Weapons',
-    'Meditation',
-    'Tui Shou',
-    'Conditioning',
-    'Self Defense',
-    'Philosophy',
+    'Shaolin / Yiquan / Taijiquan',
+    'tuishou / sanda',
     'Your New Type' // Add your custom type here
 ];
 ```
@@ -211,7 +205,7 @@ The app uses CSS custom properties for theming. Edit `styles/themes.css` to cust
 
 ### Importing Data
 1. Data can be imported by setting localStorage values
-2. Use the sample data in `data/seed.json` as a format reference
+2. Use your own exported data as a format reference
 
 ## 🔧 Development
 
