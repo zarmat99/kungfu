@@ -349,22 +349,7 @@ class UIManager {
     createStatsComponent() {
         return `
             <div class="stats-section">
-                <div class="stats-overview grid grid-4">
-                    <div class="stats-card">
-                        <i class="fas fa-clock stats-icon"></i>
-                        <div class="stats-value" id="total-hours">0</div>
-                        <div class="stats-label">Total Hours</div>
-                    </div>
-                    <div class="stats-card">
-                        <i class="fas fa-calendar-check stats-icon"></i>
-                        <div class="stats-value" id="total-sessions">0</div>
-                        <div class="stats-label">Total Sessions</div>
-                    </div>
-                    <div class="stats-card">
-                        <i class="fas fa-fire stats-icon"></i>
-                        <div class="stats-value" id="weekly-hours">0</div>
-                        <div class="stats-label">This Week</div>
-                    </div>
+                <div class="stats-overview grid grid-1">
                     <div class="stats-card">
                         <i class="fas fa-chart-line stats-icon"></i>
                         <div class="stats-value" id="average-session">0</div>
@@ -868,12 +853,7 @@ class UIManager {
     updateStatsDisplay() {
         const stats = storage.getStats();
         
-        this.updateElement('total-hours', Math.floor(stats.totalHours) || 0);
-        this.updateElement('total-sessions', stats.totalSessions || 0);
-        this.updateElement('avg-duration', Math.floor(stats.averageSessionLength) || 0);
-        
-        this.updateElement('weekly-hours', Math.floor(stats.weeklyHours) || 0);
-        this.updateElement('monthly-hours', Math.floor(stats.monthlyHours) || 0);
+        this.updateElement('average-session', Math.floor(stats.averageSessionLength) || 0);
 
         if (window.chartManager) {
             chartManager.updateCharts(stats);
