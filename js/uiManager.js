@@ -849,9 +849,44 @@ class UIManager {
     updateStatsDisplay() {
         const stats = storage.getStats();
 
+        // Update stats overview cards
+        this.updateStatsOverview(stats);
+
         if (window.chartManager) {
             chartManager.updateCharts(stats);
         }
+    }
+
+    /**
+     * Update stats overview section with statistics cards
+     */
+    updateStatsOverview(stats) {
+        const container = document.querySelector('.stats-overview');
+        if (!container) return;
+
+        // Calculate additional statistics
+        const avgSessionDuration = stats.totalSessions > 0 ? 
+            (stats.totalHours * 60) / stats.totalSessions : 0;
+
+        container.innerHTML = `
+            <div class="stats-cards-grid grid grid-3">
+                <div class="stats-card hover-lift">
+                    <i class="fas fa-clock stats-icon"></i>
+                    <div class="stats-value">${Math.floor(stats.totalHours || 0)}</div>
+                    <div class="stats-label">Total Hours</div>
+                </div>
+                <div class="stats-card hover-lift">
+                    <i class="fas fa-calendar-check stats-icon"></i>
+                    <div class="stats-value">${stats.totalSessions || 0}</div>
+                    <div class="stats-label">Total Sessions</div>
+                </div>
+                <div class="stats-card hover-lift">
+                    <i class="fas fa-chart-line stats-icon"></i>
+                    <div class="stats-value">${Math.floor(stats.weeklyHours || 0)}</div>
+                    <div class="stats-label">This Week</div>
+                </div>
+            </div>
+        `;
     }
 
     /**
