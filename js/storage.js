@@ -53,7 +53,6 @@ class Storage {
                 totalHours: 0,
                 weeklyHours: 0,
                 monthlyHours: 0,
-                averageSessionLength: 0,
                 typeDistribution: {},
                 lastUpdated: Date.now()
             };
@@ -231,7 +230,6 @@ class Storage {
             totalHours,
             weeklyHours,
             monthlyHours,
-            averageSessionLength: totalSessions ? (totalHours * 60) / totalSessions : 0,
             typeDistribution,
             lastUpdated: Date.now()
         };
@@ -468,7 +466,6 @@ class Storage {
             totalHours: 0,
             weeklyHours: 0,
             monthlyHours: 0,
-            averageSessionLength: 0,
             typeDistribution: {},
             lastUpdated: Date.now()
         };

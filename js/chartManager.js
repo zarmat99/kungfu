@@ -541,7 +541,6 @@ class ChartManager {
         return {
             totalHours: stats.totalHours,
             totalSessions: stats.totalSessions,
-            averageSession: stats.averageSessionLength,
             weeklyAverage: stats.weeklyHours,
             monthlyAverage: stats.monthlyHours,
             mostPopularType: this.getMostPopularTrainingType(stats.typeDistribution),
