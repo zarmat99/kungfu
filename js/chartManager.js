@@ -33,6 +33,12 @@ class ChartManager {
                 easing: 'easeInOutQuart'
             }
         };
+
+        // Period management for Training Hours chart
+        this.trainingHoursPeriod = 'weekly'; // daily, weekly, monthly, yearly
+        this.trainingHoursRange = 12; // number of periods to show
+        this.touchStartX = 0;
+        this.touchEndX = 0;
     }
 
     /**
@@ -46,7 +52,7 @@ class ChartManager {
     }
 
     /**
-     * Create training hours chart (line chart)
+     * Create training hours chart (line chart) with period controls and touch gestures
      */
     createTrainingHoursChart() {
         const canvas = document.getElementById('training-hours-chart');
@@ -59,32 +65,22 @@ class ChartManager {
             this.charts.trainingHours.destroy();
         }
 
+        // Add touch gesture support
+        this.addTouchGesturesSupport(canvas);
+
         this.charts.trainingHours = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: 'Weekly Hours',
-                    data: data.weeklyHours,
+                    label: this.getPeriodLabel(),
+                    data: data.hours,
                     borderColor: this.chartColors.primary,
                     backgroundColor: this.chartColors.primary + '20',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
                     pointBackgroundColor: this.chartColors.primary,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }, {
-                    label: 'Monthly Hours',
-                    data: data.monthlyHours,
-                    borderColor: this.chartColors.secondary,
-                    backgroundColor: this.chartColors.secondary + '20',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: this.chartColors.secondary,
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
                     pointRadius: 6,
@@ -108,6 +104,18 @@ class ChartManager {
                         grid: {
                             color: 'rgba(0,0,0,0.1)'
                         }
+                    }
+                },
+                plugins: {
+                    ...this.chartOptions.plugins,
+                    title: {
+                        display: true,
+                        text: `Training Hours - ${this.trainingHoursPeriod.charAt(0).toUpperCase() + this.trainingHoursPeriod.slice(1)} View`,
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: 20
                     }
                 }
             }
@@ -324,41 +332,36 @@ class ChartManager {
     }
 
     /**
-     * Get training hours data for chart
+     * Get training hours data for chart based on current period
      */
     getTrainingHoursData() {
         const sessions = storage.getAllSessions();
-        const weeks = {};
-        const months = {};
+        const groupedData = {};
         
-        // Group sessions by week and month
+        // Group sessions by the current period
         sessions.forEach(session => {
             const date = new Date(session.date);
-            const weekKey = this.getWeekKey(date);
-            const monthKey = this.getMonthKey(date);
+            const periodKey = this.getPeriodKey(date, this.trainingHoursPeriod);
             
-            weeks[weekKey] = (weeks[weekKey] || 0) + session.duration / 60;
-            months[monthKey] = (months[monthKey] || 0) + session.duration / 60;
+            groupedData[periodKey] = (groupedData[periodKey] || 0) + session.duration / 60;
         });
         
-        // Get last 12 weeks/months
+        // Generate labels and data for the specified range
         const labels = [];
-        const weeklyHours = [];
-        const monthlyHours = [];
+        const hours = [];
         
-        for (let i = 11; i >= 0; i--) {
+        for (let i = this.trainingHoursRange - 1; i >= 0; i--) {
             const date = new Date();
-            date.setDate(date.getDate() - (i * 7));
+            this.adjustDateByPeriod(date, -i, this.trainingHoursPeriod);
             
-            const weekKey = this.getWeekKey(date);
-            const monthKey = this.getMonthKey(date);
+            const periodKey = this.getPeriodKey(date, this.trainingHoursPeriod);
+            const label = this.formatPeriodLabel(date, this.trainingHoursPeriod);
             
-            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-            weeklyHours.push(weeks[weekKey] || 0);
-            monthlyHours.push(months[monthKey] || 0);
+            labels.push(label);
+            hours.push(groupedData[periodKey] || 0);
         }
         
-        return { labels, weeklyHours, monthlyHours };
+        return { labels, hours };
     }
 
     /**
@@ -444,8 +447,10 @@ class ChartManager {
             case 'trainingHours':
                 newData = this.getTrainingHoursData();
                 chart.data.labels = newData.labels;
-                chart.data.datasets[0].data = newData.weeklyHours;
-                chart.data.datasets[1].data = newData.monthlyHours;
+                chart.data.datasets[0].data = newData.hours;
+                chart.data.datasets[0].label = this.getPeriodLabel();
+                // Update chart title
+                chart.options.plugins.title.text = `Training Hours - ${this.trainingHoursPeriod.charAt(0).toUpperCase() + this.trainingHoursPeriod.slice(1)} View`;
                 break;
             case 'trainingTypes':
                 newData = this.getTrainingTypesData();
@@ -518,6 +523,195 @@ class ChartManager {
         } else {
             return `${hours}h ${mins}min`;
         }
+    }
+
+    /**
+     * Get period key for grouping data
+     */
+    getPeriodKey(date, period) {
+        switch (period) {
+            case 'daily':
+                return date.toISOString().split('T')[0];
+            case 'weekly':
+                return this.getWeekKey(date);
+            case 'monthly':
+                return this.getMonthKey(date);
+            case 'yearly':
+                return date.getFullYear().toString();
+            default:
+                return this.getWeekKey(date);
+        }
+    }
+
+    /**
+     * Adjust date by period
+     */
+    adjustDateByPeriod(date, amount, period) {
+        switch (period) {
+            case 'daily':
+                date.setDate(date.getDate() + amount);
+                break;
+            case 'weekly':
+                date.setDate(date.getDate() + (amount * 7));
+                break;
+            case 'monthly':
+                date.setMonth(date.getMonth() + amount);
+                break;
+            case 'yearly':
+                date.setFullYear(date.getFullYear() + amount);
+                break;
+        }
+    }
+
+    /**
+     * Format period label for display
+     */
+    formatPeriodLabel(date, period) {
+        switch (period) {
+            case 'daily':
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            case 'weekly':
+                const weekStart = new Date(date);
+                weekStart.setDate(date.getDate() - date.getDay());
+                return weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            case 'monthly':
+                return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            case 'yearly':
+                return date.getFullYear().toString();
+            default:
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+    }
+
+    /**
+     * Get period label for chart dataset
+     */
+    getPeriodLabel() {
+        switch (this.trainingHoursPeriod) {
+            case 'daily':
+                return 'Daily Hours';
+            case 'weekly':
+                return 'Weekly Hours';
+            case 'monthly':
+                return 'Monthly Hours';
+            case 'yearly':
+                return 'Yearly Hours';
+            default:
+                return 'Hours';
+        }
+    }
+
+    /**
+     * Add touch gesture support to chart canvas
+     */
+    addTouchGesturesSupport(canvas) {
+        // Touch events for mobile devices
+        canvas.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.touches[0].clientX;
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            this.touchEndX = e.changedTouches[0].clientX;
+            this.handleSwipeGesture();
+        });
+
+        // Mouse events for desktop (simulate touch)
+        canvas.addEventListener('mousedown', (e) => {
+            this.touchStartX = e.clientX;
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            this.touchEndX = e.clientX;
+            this.handleSwipeGesture();
+        });
+    }
+
+    /**
+     * Handle swipe gestures for period navigation
+     */
+    handleSwipeGesture() {
+        const swipeThreshold = 50;
+        const swipeDistance = this.touchEndX - this.touchStartX;
+
+        if (Math.abs(swipeDistance) > swipeThreshold) {
+            if (swipeDistance > 0) {
+                // Swipe right - previous period
+                this.changePeriodRange(-1);
+            } else {
+                // Swipe left - next period
+                this.changePeriodRange(1);
+            }
+        }
+    }
+
+    /**
+     * Change the time range of the training hours chart
+     */
+    changePeriodRange(direction) {
+        // For now, we'll adjust the range (number of periods shown)
+        if (direction > 0 && this.trainingHoursRange < 24) {
+            this.trainingHoursRange += 2;
+        } else if (direction < 0 && this.trainingHoursRange > 4) {
+            this.trainingHoursRange -= 2;
+        }
+
+        // Update the chart with new data
+        this.updateChart('trainingHours');
+        
+        // Trigger a visual feedback
+        this.showPeriodChangeNotification();
+    }
+
+    /**
+     * Change the period type (daily, weekly, monthly, yearly)
+     */
+    changePeriodType(newPeriod) {
+        if (['daily', 'weekly', 'monthly', 'yearly'].includes(newPeriod)) {
+            this.trainingHoursPeriod = newPeriod;
+            
+            // Adjust range based on period type
+            switch (newPeriod) {
+                case 'daily':
+                    this.trainingHoursRange = 30; // Last 30 days
+                    break;
+                case 'weekly':
+                    this.trainingHoursRange = 12; // Last 12 weeks
+                    break;
+                case 'monthly':
+                    this.trainingHoursRange = 12; // Last 12 months
+                    break;
+                case 'yearly':
+                    this.trainingHoursRange = 5; // Last 5 years
+                    break;
+            }
+
+            // Recreate the chart with new period
+            this.createTrainingHoursChart();
+            
+            // Show notification
+            this.showPeriodChangeNotification();
+        }
+    }
+
+    /**
+     * Show notification when period changes
+     */
+    showPeriodChangeNotification() {
+        const notification = document.createElement('div');
+        notification.className = 'period-change-notification';
+        notification.innerHTML = `
+            <i class="fas fa-calendar-alt"></i>
+            <span>Viewing ${this.trainingHoursPeriod} data (${this.trainingHoursRange} periods)</span>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 2 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 2000);
     }
 
     /**

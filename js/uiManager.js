@@ -37,6 +37,13 @@ class UIManager {
             }
         });
 
+        // Handle period selector for training hours chart
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('period-btn')) {
+                this.handlePeriodSelection(e.target);
+            }
+        });
+
         // Handle modal close
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
@@ -355,7 +362,20 @@ class UIManager {
                 
                 <div class="charts-grid grid grid-2">
                     <div class="chart-wrapper">
-                        <h3 class="chart-title">Training Hours Over Time</h3>
+                        <div class="chart-header">
+                            <h3 class="chart-title">Training Hours Over Time</h3>
+                            <div class="chart-controls">
+                                <div class="period-selector">
+                                    <button class="period-btn" data-period="daily">Daily</button>
+                                    <button class="period-btn active" data-period="weekly">Weekly</button>
+                                    <button class="period-btn" data-period="monthly">Monthly</button>
+                                    <button class="period-btn" data-period="yearly">Yearly</button>
+                                </div>
+                                <div class="chart-info">
+                                    <i class="fas fa-info-circle" title="Swipe left/right on chart to adjust time range"></i>
+                                </div>
+                            </div>
+                        </div>
                         <canvas id="training-hours-chart" class="chart-canvas"></canvas>
                     </div>
                     <div class="chart-wrapper">
@@ -955,6 +975,23 @@ class UIManager {
         const viewName = navItem.dataset.view;
         if (viewName && viewName !== this.currentView) {
             this.renderView(viewName);
+        }
+    }
+
+    /**
+     * Handle period selection for training hours chart
+     */
+    handlePeriodSelection(button) {
+        const period = button.dataset.period;
+        
+        // Update active button
+        const allButtons = document.querySelectorAll('.period-btn');
+        allButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Update chart period
+        if (window.chartManager) {
+            window.chartManager.changePeriodType(period);
         }
     }
 
