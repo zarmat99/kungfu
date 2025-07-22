@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Period Test - Kung Fu Tracker</title>
+    
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/layout.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/themes.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="stats-section">
+                <h2>Training Hours Chart - Period Test</h2>
+                <div class="charts-grid grid grid-1">
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Training Hours Over Time</h3>
+                            <div class="chart-controls">
+                                <div class="period-selector">
+                                    <button class="period-btn" data-period="daily">Daily</button>
+                                    <button class="period-btn active" data-period="weekly">Weekly</button>
+                                    <button class="period-btn" data-period="monthly">Monthly</button>
+                                    <button class="period-btn" data-period="yearly">Yearly</button>
+                                </div>
+                                <div class="chart-info">
+                                    <i class="fas fa-info-circle" title="Swipe left/right on chart to adjust time range"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <canvas id="training-hours-chart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px;">
+                    <h4>Instructions:</h4>
+                    <ul>
+                        <li>Click the period buttons (Daily, Weekly, Monthly, Yearly) to change the chart view</li>
+                        <li>Swipe left/right on the chart (or click and drag) to adjust the time range</li>
+                        <li>The chart will show a notification when the period changes</li>
+                    </ul>
+                    <button id="add-sample-data" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Sample Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="js/storage.js"></script>
+    <script src="js/chartManager.js"></script>
+    
+    <script>
+        // Initialize storage and chart manager
+        window.storage = new Storage();
+        window.chartManager = new ChartManager();
+        
+        // Add sample data function
+        function addSampleData() {
+            const sessions = [];
+            const now = new Date();
+            
+            // Generate sample sessions over the last 3 months
+            for (let i = 0; i < 90; i++) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                
+                // Random chance of having a session (about 60% of days)
+                if (Math.random() > 0.4) {
+                    const session = {
+                        id: `session_${i}`,
+                        date: date.toISOString().split('T')[0],
+                        type: ['Forms', 'Sparring', 'Weapons', 'Conditioning', 'Meditation'][Math.floor(Math.random() * 5)],
+                        duration: 30 + Math.floor(Math.random() * 120), // 30-150 minutes
+                        intensity: ['Light', 'Moderate', 'Intense'][Math.floor(Math.random() * 3)],
+                        notes: `Sample training session ${i + 1}`
+                    };
+                    sessions.push(session);
+                }
+            }
+            
+            // Store sample sessions
+            localStorage.setItem('kungfu_sessions', JSON.stringify(sessions));
+            
+            // Initialize and update chart
+            window.chartManager.initializeCharts();
+            
+            alert(`Added ${sessions.length} sample training sessions!`);
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize chart
+            window.chartManager.initializeCharts();
+            
+            // Add sample data button
+            document.getElementById('add-sample-data').addEventListener('click', addSampleData);
+            
+            // Period selector event listeners
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('period-btn')) {
+                    const period = e.target.dataset.period;
+                    
+                    // Update active button
+                    const allButtons = document.querySelectorAll('.period-btn');
+                    allButtons.forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    // Update chart period
+                    if (window.chartManager) {
+                        window.chartManager.changePeriodType(period);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
