@@ -350,11 +350,7 @@ class UIManager {
         return `
             <div class="stats-section">
                 <div class="stats-overview grid grid-1">
-                    <div class="stats-card">
-                        <i class="fas fa-chart-line stats-icon"></i>
-                        <div class="stats-value" id="average-session">0</div>
-                        <div class="stats-label">Avg Session</div>
-                    </div>
+                    
                 </div>
                 
                 <div class="charts-grid grid grid-2">
@@ -852,8 +848,6 @@ class UIManager {
      */
     updateStatsDisplay() {
         const stats = storage.getStats();
-        
-        this.updateElement('average-session', Math.floor(stats.averageSessionLength) || 0);
 
         if (window.chartManager) {
             chartManager.updateCharts(stats);
