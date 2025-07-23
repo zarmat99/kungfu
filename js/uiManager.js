@@ -556,7 +556,7 @@ class UIManager {
                     <p id="dashboard-greeting">Welcome back, warrior!</p>
                 </div>
                 
-                <div class="dashboard-stats grid grid-4">
+                <div class="dashboard-stats grid grid-3">
                     <div class="stats-card hover-lift">
                         <i class="fas fa-clock stats-icon"></i>
                         <div class="stats-value" id="dash-total-hours">0</div>
@@ -566,11 +566,6 @@ class UIManager {
                         <i class="fas fa-calendar-check stats-icon"></i>
                         <div class="stats-value" id="dash-total-sessions">0</div>
                         <div class="stats-label">Total Sessions</div>
-                    </div>
-                    <div class="stats-card hover-lift">
-                        <i class="fas fa-fire stats-icon"></i>
-                        <div class="stats-value" id="dash-weekly-hours">0</div>
-                        <div class="stats-label">This Week</div>
                     </div>
                     <div class="stats-card hover-lift">
                         <i class="fas fa-trophy stats-icon"></i>
@@ -1009,7 +1004,6 @@ class UIManager {
         // Update stats
         this.updateElement('dash-total-hours', Math.floor(stats.totalHours || 0));
         this.updateElement('dash-total-sessions', stats.totalSessions || 0);
-        this.updateElement('dash-weekly-hours', Math.floor(stats.weeklyHours || 0));
         this.updateElement('dash-current-belt', beltSystem.currentBelt || 'White');
         
         // Update recent sessions
