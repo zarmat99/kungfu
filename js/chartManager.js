@@ -400,7 +400,9 @@ class ChartManager {
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             case 'weekly':
                 const weekStart = new Date(date);
-                weekStart.setDate(date.getDate() - date.getDay());
+                const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday start
+                weekStart.setDate(date.getDate() - daysFromMonday);
                 return weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             case 'monthly':
                 return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });

@@ -200,17 +200,25 @@ class Storage {
 
     calculateStats(sessions) {
         const now = new Date();
-        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        // Calculate current week boundaries (Monday to Sunday)
+        const currentWeekStart = new Date(now);
+        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday start
+        currentWeekStart.setDate(now.getDate() - daysFromMonday);
+        currentWeekStart.setHours(0, 0, 0, 0); // Start of day
+        
         const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
         // Total stats
         const totalSessions = sessions.length;
         const totalHours = sessions.reduce((sum, session) => sum + session.duration, 0) / 60;
 
-        // Weekly stats
-        const weeklySessions = sessions.filter(session => 
-            new Date(session.date) >= oneWeekAgo
-        );
+        // Weekly stats - sessions from current week start to now
+        const weeklySessions = sessions.filter(session => {
+            const sessionDate = new Date(session.date);
+            return sessionDate >= currentWeekStart && sessionDate <= now;
+        });
         const weeklyHours = weeklySessions.reduce((sum, session) => sum + session.duration, 0) / 60;
 
         // Monthly stats
@@ -348,9 +356,11 @@ class Storage {
     }
 
     getWeekKey(date) {
-        const startOfYear = new Date(date.getFullYear(), 0, 1);
+        const year = date.getFullYear();
+        const startOfYear = new Date(year, 0, 1);
         const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
-        return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        return `${year}-W${weekNumber}`;
     }
 
     getSessionsInLastDays(days) {
