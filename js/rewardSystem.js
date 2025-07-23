@@ -568,23 +568,7 @@ class RewardSystem {
         }
     }
 
-    /**
-     * Get weekly motivation
-     */
-    getWeeklyMotivation() {
-        const stats = storage.getStats();
-        const weeklyHours = stats.weeklyHours || 0;
-        
-        if (weeklyHours >= 5) {
-            return "🏆 Excellent weekly training! You're on fire!";
-        } else if (weeklyHours >= 3) {
-            return "👍 Great week of training! Keep it up!";
-        } else if (weeklyHours >= 1) {
-            return "📈 Good start this week! Can you do more?";
-        } else {
-            return "🎯 Time to start your training week strong!";
-        }
-    }
+
 }
 
 // Create global reward system instance

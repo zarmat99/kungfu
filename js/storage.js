@@ -51,7 +51,6 @@ class Storage {
             const emptyStats = {
                 totalSessions: 0,
                 totalHours: 0,
-                weeklyHours: 0,
                 monthlyHours: 0,
                 typeDistribution: {},
                 lastUpdated: Date.now()
@@ -201,25 +200,11 @@ class Storage {
     calculateStats(sessions) {
         const now = new Date();
         
-        // Calculate current week boundaries (Monday to Sunday)
-        const currentWeekStart = new Date(now);
-        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday start
-        currentWeekStart.setDate(now.getDate() - daysFromMonday);
-        currentWeekStart.setHours(0, 0, 0, 0); // Start of day
-        
         const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
         // Total stats
         const totalSessions = sessions.length;
         const totalHours = sessions.reduce((sum, session) => sum + session.duration, 0) / 60;
-
-        // Weekly stats - sessions from current week start to now
-        const weeklySessions = sessions.filter(session => {
-            const sessionDate = new Date(session.date);
-            return sessionDate >= currentWeekStart && sessionDate <= now;
-        });
-        const weeklyHours = weeklySessions.reduce((sum, session) => sum + session.duration, 0) / 60;
 
         // Monthly stats
         const monthlySessions = sessions.filter(session => 
@@ -236,7 +221,6 @@ class Storage {
         return {
             totalSessions,
             totalHours,
-            weeklyHours,
             monthlyHours,
             typeDistribution,
             lastUpdated: Date.now()
@@ -474,7 +458,6 @@ class Storage {
         const emptyStats = {
             totalSessions: 0,
             totalHours: 0,
-            weeklyHours: 0,
             monthlyHours: 0,
             typeDistribution: {},
             lastUpdated: Date.now()

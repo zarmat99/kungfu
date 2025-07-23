@@ -540,7 +540,6 @@ class ChartManager {
         return {
             totalHours: stats.totalHours,
             totalSessions: stats.totalSessions,
-            weeklyAverage: stats.weeklyHours,
             monthlyAverage: stats.monthlyHours,
             mostPopularType: this.getMostPopularTrainingType(stats.typeDistribution),
             consistency: this.getConsistencyScore()
