@@ -73,7 +73,7 @@ class ChartManager {
             data: {
                 labels: data.labels,
                 datasets: [{
-                    label: this.getPeriodLabel(),
+                    label: 'Hours',
                     data: data.hours,
                     borderColor: this.chartColors.primary,
                     backgroundColor: this.chartColors.primary + '20',
@@ -84,13 +84,31 @@ class ChartManager {
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
                     pointRadius: 6,
-                    pointHoverRadius: 8
+                    pointHoverRadius: 8,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Sessions',
+                    data: data.sessions,
+                    borderColor: this.chartColors.secondary,
+                    backgroundColor: this.chartColors.secondary + '20',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointBackgroundColor: this.chartColors.secondary,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    yAxisID: 'y1'
                 }]
             },
             options: {
                 ...this.chartOptions,
                 scales: {
                     y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         beginAtZero: true,
                         title: {
                             display: true,
@@ -99,6 +117,19 @@ class ChartManager {
                         grid: {
                             color: 'rgba(0,0,0,0.1)'
                         }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Sessions'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
                     },
                     x: {
                         grid: {
@@ -110,7 +141,7 @@ class ChartManager {
                     ...this.chartOptions.plugins,
                     title: {
                         display: true,
-                        text: `Training Hours - ${this.trainingHoursPeriod.charAt(0).toUpperCase() + this.trainingHoursPeriod.slice(1)} View`,
+                        text: `Training Hours & Sessions - ${this.trainingHoursPeriod.charAt(0).toUpperCase() + this.trainingHoursPeriod.slice(1)} View`,
                         font: {
                             size: 16,
                             weight: 'bold'
@@ -343,12 +374,17 @@ class ChartManager {
             const date = new Date(session.date);
             const periodKey = this.getPeriodKey(date, this.trainingHoursPeriod);
             
-            groupedData[periodKey] = (groupedData[periodKey] || 0) + session.duration / 60;
+            if (!groupedData[periodKey]) {
+                groupedData[periodKey] = { hours: 0, sessions: 0 };
+            }
+            groupedData[periodKey].hours += session.duration / 60;
+            groupedData[periodKey].sessions += 1;
         });
         
         // Generate labels and data for the specified range
         const labels = [];
         const hours = [];
+        const sessionCounts = [];
         
         for (let i = this.trainingHoursRange - 1; i >= 0; i--) {
             const date = new Date();
@@ -358,10 +394,11 @@ class ChartManager {
             const label = this.formatPeriodLabel(date, this.trainingHoursPeriod);
             
             labels.push(label);
-            hours.push(groupedData[periodKey] || 0);
+            hours.push(groupedData[periodKey] ? groupedData[periodKey].hours : 0);
+            sessionCounts.push(groupedData[periodKey] ? groupedData[periodKey].sessions : 0);
         }
         
-        return { labels, hours };
+        return { labels, hours, sessions: sessionCounts };
     }
 
     /**
@@ -448,9 +485,9 @@ class ChartManager {
                 newData = this.getTrainingHoursData();
                 chart.data.labels = newData.labels;
                 chart.data.datasets[0].data = newData.hours;
-                chart.data.datasets[0].label = this.getPeriodLabel();
+                chart.data.datasets[1].data = newData.sessions;
                 // Update chart title
-                chart.options.plugins.title.text = `Training Hours - ${this.trainingHoursPeriod.charAt(0).toUpperCase() + this.trainingHoursPeriod.slice(1)} View`;
+                chart.options.plugins.title.text = `Training Hours & Sessions - ${this.trainingHoursPeriod.charAt(0).toUpperCase() + this.trainingHoursPeriod.slice(1)} View`;
                 break;
             case 'trainingTypes':
                 newData = this.getTrainingTypesData();
