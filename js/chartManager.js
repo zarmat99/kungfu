@@ -657,9 +657,6 @@ class ChartManager {
 
         // Update the chart with new data
         this.updateChart('trainingHours');
-        
-        // Trigger a visual feedback
-        this.showPeriodChangeNotification();
     }
 
     /**
@@ -687,32 +684,10 @@ class ChartManager {
 
             // Recreate the chart with new period
             this.createTrainingHoursChart();
-            
-            // Show notification
-            this.showPeriodChangeNotification();
         }
     }
 
-    /**
-     * Show notification when period changes
-     */
-    showPeriodChangeNotification() {
-        const notification = document.createElement('div');
-        notification.className = 'period-change-notification';
-        notification.innerHTML = `
-            <i class="fas fa-calendar-alt"></i>
-            <span>Viewing ${this.trainingHoursPeriod} data (${this.trainingHoursRange} periods)</span>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Remove notification after 2 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 2000);
-    }
+
 
     /**
      * Export chart as image

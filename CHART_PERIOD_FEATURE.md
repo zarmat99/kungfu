@@ -20,7 +20,6 @@ The Training Hours Over Time chart now supports interactive period modification 
 ### 3. Visual Feedback
 - Active period button is highlighted in red
 - Chart title updates to show current period view
-- Notification appears when period changes, showing current settings
 - Smooth animations for all transitions
 
 ## Implementation Details
@@ -38,11 +37,10 @@ The Training Hours Over Time chart now supports interactive period modification 
    - Modified chart HTML structure to include period controls
    - Added event handler for period selection buttons
 
-3. **`styles/components.css`**
-   - Added comprehensive styling for chart controls
-   - Added period selector button styles with hover effects
-   - Added notification popup styles
-   - Added responsive design for mobile devices
+ 3. **`styles/components.css`**
+    - Added comprehensive styling for chart controls
+    - Added period selector button styles with hover effects
+    - Added responsive design for mobile devices
 
 ### Key Methods Added
 
