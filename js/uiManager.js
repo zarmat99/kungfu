@@ -363,7 +363,7 @@ class UIManager {
                 <div class="charts-grid grid grid-2">
                     <div class="chart-wrapper">
                         <div class="chart-header">
-                            <h3 class="chart-title">Training Hours Over Time</h3>
+                            <h3 class="chart-title">Training Hours & Sessions Over Time</h3>
                             <div class="chart-controls">
                                 <div class="period-selector">
                                     <button class="period-btn" data-period="daily">Daily</button>
