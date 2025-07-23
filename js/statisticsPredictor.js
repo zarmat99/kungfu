@@ -394,7 +394,6 @@ class StatisticsPredictor {
         const predictedMonthlyHours = monthlyPrediction.hours;
         
         const predictions = [];
-        let accumulatedHours = currentHours;
         let monthsFromNow = 0;
         
         // Predict next 3 belt progressions
@@ -407,7 +406,8 @@ class StatisticsPredictor {
             const hourRequirement = requirements.find(req => req.type === 'totalHours');
             if (!hourRequirement) continue;
             
-            const hoursNeeded = hourRequirement.value - accumulatedHours;
+            // Calculate hours needed from current position (cumulative)
+            const hoursNeeded = hourRequirement.value - currentHours;
             
             if (hoursNeeded <= 0) {
                 predictions.push({
@@ -433,8 +433,6 @@ class StatisticsPredictor {
                     estimatedDate: this.getEstimatedDate(monthsNeeded),
                     confidence: Math.max(20, 90 - (monthsNeeded * 5)) // Decreasing confidence over time
                 });
-                
-                accumulatedHours = hourRequirement.value;
             }
         }
         
