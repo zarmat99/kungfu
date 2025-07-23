@@ -57,6 +57,13 @@ class Router {
             title: 'Belt System - Kung Fu Tracker',
             requiresAuth: false
         });
+
+        this.routes.set('predictions', {
+            path: '/predictions',
+            component: 'predictions',
+            title: 'Training Predictions - Kung Fu Tracker',
+            requiresAuth: false
+        });
     }
 
     /**

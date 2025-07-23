@@ -89,6 +89,13 @@ class UIManager {
                 this.updateDashboard();
             }
         });
+
+        // Listen for prediction updates
+        window.addEventListener('predictionsUpdated', () => {
+            if (this.currentView === 'predictions') {
+                this.updatePredictionsDisplay();
+            }
+        });
     }
 
     /**
@@ -119,6 +126,7 @@ class UIManager {
             'calendar',
             'stats',
             'rewards',
+            'predictions',
             'achievements',
             'settings'
         ];
@@ -168,6 +176,8 @@ class UIManager {
                 return this.createStatsComponent();
             case 'rewards':
                 return this.createRewardsComponent();
+            case 'predictions':
+                return this.createPredictionsComponent();
             case 'achievements':
                 return this.createAchievementsComponent();
             case 'settings':
@@ -209,10 +219,14 @@ class UIManager {
                             <i class="fas fa-chart-bar"></i>
                             <span>Statistics</span>
                         </div>
-                        <div class="nav-item" data-view="rewards">
-                            <i class="fas fa-trophy"></i>
-                            <span>Belts</span>
-                        </div>
+                                        <div class="nav-item" data-view="rewards">
+                    <i class="fas fa-trophy"></i>
+                    <span>Belts</span>
+                </div>
+                <div class="nav-item" data-view="predictions">
+                    <i class="fas fa-crystal-ball"></i>
+                    <span>Predictions</span>
+                </div>
                         <div class="nav-item" data-view="achievements">
                             <i class="fas fa-medal"></i>
                             <span>Achievements</span>
@@ -388,6 +402,126 @@ class UIManager {
     }
 
     /**
+     * Create predictions component
+     */
+    createPredictionsComponent() {
+        return `
+            <div class="view" id="predictions-view">
+                <div class="view-header">
+                    <h1><i class="fas fa-crystal-ball"></i> Training Predictions</h1>
+                    <p>Forecast your future training progress and belt achievements</p>
+                </div>
+                
+                <div class="predictions-container">
+                    <!-- Prediction Summary Cards -->
+                    <div class="predictions-summary grid grid-3">
+                        <div class="prediction-card">
+                            <div class="prediction-header">
+                                <i class="fas fa-calendar-week"></i>
+                                <h3>Next Week</h3>
+                            </div>
+                            <div class="prediction-value" id="weekly-prediction">0 hours</div>
+                            <div class="prediction-confidence" id="weekly-confidence">0% confidence</div>
+                        </div>
+                        
+                        <div class="prediction-card">
+                            <div class="prediction-header">
+                                <i class="fas fa-calendar-alt"></i>
+                                <h3>Next Month</h3>
+                            </div>
+                            <div class="prediction-value" id="monthly-prediction">0 hours</div>
+                            <div class="prediction-confidence" id="monthly-confidence">0% confidence</div>
+                        </div>
+                        
+                        <div class="prediction-card">
+                            <div class="prediction-header">
+                                <i class="fas fa-calendar"></i>
+                                <h3>Next Year</h3>
+                            </div>
+                            <div class="prediction-value" id="yearly-prediction">0 hours</div>
+                            <div class="prediction-confidence" id="yearly-confidence">0% confidence</div>
+                        </div>
+                    </div>
+
+                    <!-- Belt Progression Predictions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-trophy"></i> Belt Progression Forecast</h2>
+                        </div>
+                        <div class="card-body" id="belt-progression-predictions">
+                            <!-- Belt predictions will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Training Milestones -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-flag-checkered"></i> Upcoming Milestones</h2>
+                        </div>
+                        <div class="card-body" id="milestone-predictions">
+                            <!-- Milestone predictions will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Training Trends & Analysis -->
+                    <div class="predictions-analysis grid grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-chart-line"></i> Training Trends</h2>
+                            </div>
+                            <div class="card-body" id="training-trends">
+                                <!-- Trend analysis will be loaded here -->
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-lightbulb"></i> Recommendations</h2>
+                            </div>
+                            <div class="card-body" id="training-recommendations">
+                                <!-- Recommendations will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Pattern Analysis -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-calendar-week"></i> Weekly Training Pattern</h2>
+                        </div>
+                        <div class="card-body" id="weekly-pattern">
+                            <!-- Weekly pattern analysis will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Prediction Settings -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-cog"></i> Prediction Settings</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="prediction-settings">
+                                <div class="setting-group">
+                                    <label for="prediction-model">Prediction Model:</label>
+                                    <select id="prediction-model" class="form-control">
+                                        <option value="adaptive">Adaptive (Recommended)</option>
+                                        <option value="linear">Linear</option>
+                                        <option value="seasonal">Seasonal</option>
+                                        <option value="exponential">Exponential</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" onclick="uiManager.updatePredictions()">
+                                    <i class="fas fa-sync"></i> Update Predictions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
      * Create rewards component
      */
     createRewardsComponent() {
@@ -520,6 +654,9 @@ class UIManager {
             case 'rewards':
                 contentDiv.innerHTML = this.components.rewards;
                 break;
+            case 'predictions':
+                contentDiv.innerHTML = this.components.predictions;
+                break;
             case 'achievements':
                 contentDiv.innerHTML = this.components.achievements;
                 break;
@@ -621,6 +758,9 @@ class UIManager {
                 break;
             case 'rewards':
                 this.updateBeltDisplay();
+                break;
+            case 'predictions':
+                this.initializePredictions();
                 break;
             case 'achievements':
                 this.updateAchievements();
@@ -992,6 +1132,289 @@ class UIManager {
                 item.classList.add('active');
             }
         });
+    }
+
+    /**
+     * Initialize predictions
+     */
+    initializePredictions() {
+        this.updatePredictionsDisplay();
+        
+        // Bind prediction model change event
+        const modelSelect = document.getElementById('prediction-model');
+        if (modelSelect) {
+            modelSelect.addEventListener('change', (e) => {
+                statisticsPredictor.setPredictionModel(e.target.value);
+                this.updatePredictionsDisplay();
+            });
+        }
+    }
+
+    /**
+     * Update predictions display
+     */
+    updatePredictionsDisplay() {
+        const predictions = statisticsPredictor.getPredictions();
+        
+        // Update summary cards
+        this.updatePredictionSummary(predictions);
+        
+        // Update belt progression
+        this.updateBeltProgressionPredictions(predictions.beltProgression);
+        
+        // Update milestones
+        this.updateMilestonePredictions(predictions.milestones);
+        
+        // Update trends
+        this.updateTrainingTrends(predictions.trends);
+        
+        // Update recommendations
+        this.updateTrainingRecommendations(predictions.recommendations);
+        
+        // Update weekly pattern
+        this.updateWeeklyPattern(predictions);
+    }
+
+    /**
+     * Update prediction summary cards
+     */
+    updatePredictionSummary(predictions) {
+        // Weekly prediction
+        const weeklyElement = document.getElementById('weekly-prediction');
+        const weeklyConfidenceElement = document.getElementById('weekly-confidence');
+        if (weeklyElement && weeklyConfidenceElement) {
+            weeklyElement.textContent = `${predictions.weeklyPrediction.hours} hours`;
+            weeklyConfidenceElement.textContent = `${predictions.weeklyPrediction.confidence}% confidence`;
+        }
+        
+        // Monthly prediction
+        const monthlyElement = document.getElementById('monthly-prediction');
+        const monthlyConfidenceElement = document.getElementById('monthly-confidence');
+        if (monthlyElement && monthlyConfidenceElement) {
+            monthlyElement.textContent = `${predictions.monthlyPrediction.hours} hours`;
+            monthlyConfidenceElement.textContent = `${predictions.monthlyPrediction.confidence}% confidence`;
+        }
+        
+        // Yearly prediction
+        const yearlyElement = document.getElementById('yearly-prediction');
+        const yearlyConfidenceElement = document.getElementById('yearly-confidence');
+        if (yearlyElement && yearlyConfidenceElement) {
+            yearlyElement.textContent = `${predictions.yearlyPrediction.hours} hours`;
+            yearlyConfidenceElement.textContent = `${predictions.yearlyPrediction.confidence}% confidence`;
+        }
+    }
+
+    /**
+     * Update belt progression predictions
+     */
+    updateBeltProgressionPredictions(beltProgression) {
+        const container = document.getElementById('belt-progression-predictions');
+        if (!container) return;
+        
+        if (beltProgression.message) {
+            container.innerHTML = `<p class="text-center">${beltProgression.message}</p>`;
+            return;
+        }
+        
+        if (!beltProgression.predictions || beltProgression.predictions.length === 0) {
+            container.innerHTML = `<p class="text-center">No belt progressions predicted with current training rate.</p>`;
+            return;
+        }
+        
+        let html = `
+            <div class="current-belt-info">
+                <h3>Current: ${beltProgression.currentBelt.title}</h3>
+                <p>Training Hours: ${beltProgression.currentBelt.hours}</p>
+                <p>Monthly Rate: ${beltProgression.monthlyRate} hours/month</p>
+            </div>
+            <div class="belt-predictions">
+        `;
+        
+        beltProgression.predictions.forEach(prediction => {
+            const confidenceClass = prediction.confidence > 70 ? 'high' : prediction.confidence > 40 ? 'medium' : 'low';
+            html += `
+                <div class="belt-prediction-item">
+                    <div class="belt-info">
+                        <h4>${prediction.beltTitle}</h4>
+                        <p class="hours-needed">${prediction.hoursNeeded} more hours needed</p>
+                    </div>
+                    <div class="time-estimate">
+                        <span class="estimate">${prediction.timeEstimate}</span>
+                        <span class="date">${prediction.estimatedDate || ''}</span>
+                        <div class="confidence confidence-${confidenceClass}">
+                            ${prediction.confidence}% confidence
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    /**
+     * Update milestone predictions
+     */
+    updateMilestonePredictions(milestones) {
+        const container = document.getElementById('milestone-predictions');
+        if (!container) return;
+        
+        if (!milestones || milestones.length === 0) {
+            container.innerHTML = `<p class="text-center">No upcoming milestones to predict.</p>`;
+            return;
+        }
+        
+        let html = '<div class="milestone-list">';
+        milestones.forEach(milestone => {
+            const confidenceClass = milestone.confidence > 70 ? 'high' : milestone.confidence > 40 ? 'medium' : 'low';
+            html += `
+                <div class="milestone-item">
+                    <div class="milestone-icon">${milestone.emoji}</div>
+                    <div class="milestone-info">
+                        <h4>${milestone.name}</h4>
+                        <p>${milestone.hoursNeeded} hours needed (${milestone.hours} total)</p>
+                    </div>
+                    <div class="milestone-estimate">
+                        <span class="time">${milestone.timeEstimate}</span>
+                        <span class="date">${milestone.estimatedDate}</span>
+                        <div class="confidence confidence-${confidenceClass}">
+                            ${milestone.confidence}% confidence
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    /**
+     * Update training trends
+     */
+    updateTrainingTrends(trends) {
+        const container = document.getElementById('training-trends');
+        if (!container) return;
+        
+        const html = `
+            <div class="trends-overview">
+                <div class="trend-item">
+                    <h4><i class="fas fa-chart-line"></i> Overall Trend</h4>
+                    <p class="trend-direction trend-${trends.overall.direction}">
+                        <i class="fas fa-arrow-${trends.overall.direction === 'up' ? 'up' : trends.overall.direction === 'down' ? 'down' : 'right'}"></i>
+                        ${trends.overall.description}
+                    </p>
+                    <span class="trend-rate">${trends.overall.rate}% change</span>
+                </div>
+                
+                <div class="trend-item">
+                    <h4><i class="fas fa-clock"></i> Consistency</h4>
+                    <p>Score: ${trends.consistency.score}/100 (${trends.consistency.level})</p>
+                    <span class="trend-status trend-${trends.consistency.trend.toLowerCase().replace(' ', '-')}">${trends.consistency.trend}</span>
+                </div>
+                
+                <div class="trend-item">
+                    <h4><i class="fas fa-calendar-check"></i> Frequency</h4>
+                    <p>Current: ${trends.frequency.current.toFixed(1)} sessions/week</p>
+                    <p>Target: ${trends.frequency.target} sessions/week</p>
+                    <span class="trend-status trend-${trends.frequency.status.toLowerCase().replace(' ', '-')}">${trends.frequency.status}</span>
+                </div>
+                
+                <div class="trend-item">
+                    <h4><i class="fas fa-leaf"></i> Seasonal Pattern</h4>
+                    <p>Best: ${trends.seasonal.bestMonth.month} (${trends.seasonal.bestMonth.hours}h)</p>
+                    <p>Variation: ${trends.seasonal.variation.variation}%</p>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    /**
+     * Update training recommendations
+     */
+    updateTrainingRecommendations(recommendations) {
+        const container = document.getElementById('training-recommendations');
+        if (!container) return;
+        
+        if (!recommendations || recommendations.length === 0) {
+            container.innerHTML = `<p class="text-center">Great job! No specific recommendations at this time.</p>`;
+            return;
+        }
+        
+        let html = '<div class="recommendations-list">';
+        recommendations.forEach(rec => {
+            const priorityClass = `priority-${rec.priority}`;
+            const priorityIcon = rec.priority === 'high' ? 'exclamation-triangle' : 
+                                rec.priority === 'medium' ? 'info-circle' : 'lightbulb';
+            
+            html += `
+                <div class="recommendation-item ${priorityClass}">
+                    <div class="rec-header">
+                        <i class="fas fa-${priorityIcon}"></i>
+                        <h4>${rec.title}</h4>
+                        <span class="priority-badge">${rec.priority}</span>
+                    </div>
+                    <p class="rec-description">${rec.description}</p>
+                    <p class="rec-action"><strong>Action:</strong> ${rec.action}</p>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    /**
+     * Update weekly pattern display
+     */
+    updateWeeklyPattern(predictions) {
+        const container = document.getElementById('weekly-pattern');
+        if (!container) return;
+        
+        if (!predictions || !predictions.trends || !predictions.trends.overall) {
+            container.innerHTML = `<p>Insufficient data for weekly pattern analysis.</p>`;
+            return;
+        }
+        
+        // Get weekly pattern from predictions (this would need to be added to the predictor)
+        const sessions = storage.getAllSessions();
+        if (sessions.length === 0) {
+            container.innerHTML = `<p>No training data available for pattern analysis.</p>`;
+            return;
+        }
+        
+        // Calculate weekly pattern
+        const weeklyPattern = statisticsPredictor.analyzeTrainingPattern(sessions).weeklyPattern;
+        
+        let html = '<div class="weekly-pattern-chart">';
+        weeklyPattern.forEach(day => {
+            const percentage = day.percentage;
+            const height = Math.max(5, percentage * 2); // Min height of 5px
+            
+            html += `
+                <div class="day-column">
+                    <div class="day-bar" style="height: ${height}px" title="${day.sessionCount} sessions (${percentage}%)"></div>
+                    <div class="day-label">${day.day.substring(0, 3)}</div>
+                    <div class="day-stats">
+                        <small>${day.sessionCount} sessions</small>
+                        <small>${day.averageHours.toFixed(1)}h avg</small>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        container.innerHTML = html;
+    }
+
+    /**
+     * Update predictions (called from UI)
+     */
+    updatePredictions() {
+        if (this.currentView === 'predictions') {
+            this.updatePredictionsDisplay();
+        }
     }
 
     /**
