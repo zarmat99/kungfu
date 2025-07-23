@@ -47,8 +47,6 @@ class ChartManager {
     initializeCharts() {
         this.createTrainingHoursChart();
         this.createTrainingTypesChart();
-        this.createProgressChart();
-        this.createConsistencyChart();
     }
 
     /**
@@ -179,157 +177,7 @@ class ChartManager {
         });
     }
 
-    /**
-     * Create progress over time chart (bar chart)
-     */
-    createProgressChart() {
-        const canvas = document.getElementById('progress-chart');
-        if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
-        const data = this.getProgressData();
-
-        if (this.charts.progress) {
-            this.charts.progress.destroy();
-        }
-
-        this.charts.progress = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Sessions',
-                    data: data.sessions,
-                    backgroundColor: this.chartColors.primary + '80',
-                    borderColor: this.chartColors.primary,
-                    borderWidth: 2,
-                    borderRadius: 8,
-                    borderSkipped: false,
-                }, {
-                    label: 'Hours',
-                    data: data.hours,
-                    backgroundColor: this.chartColors.secondary + '80',
-                    borderColor: this.chartColors.secondary,
-                    borderWidth: 2,
-                    borderRadius: 8,
-                    borderSkipped: false,
-                    yAxisID: 'y1'
-                }]
-            },
-            options: {
-                ...this.chartOptions,
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Sessions'
-                        },
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Hours'
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * Create consistency chart (heatmap-style)
-     */
-    createConsistencyChart() {
-        const canvas = document.getElementById('consistency-chart');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        const data = this.getConsistencyData();
-
-        if (this.charts.consistency) {
-            this.charts.consistency.destroy();
-        }
-
-        this.charts.consistency = new Chart(ctx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'Training Days',
-                    data: data.points,
-                    backgroundColor: (ctx) => {
-                        const value = ctx.parsed.y;
-                        const alpha = Math.min(value / 3, 1); // Max 3 sessions per day
-                        return `rgba(211, 47, 47, ${alpha})`;
-                    },
-                    borderColor: this.chartColors.primary,
-                    borderWidth: 2,
-                    pointRadius: 8,
-                    pointHoverRadius: 10
-                }]
-            },
-            options: {
-                ...this.chartOptions,
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            displayFormats: {
-                                day: 'MMM DD'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        max: 5,
-                        title: {
-                            display: true,
-                            text: 'Sessions'
-                        },
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                },
-                plugins: {
-                    ...this.chartOptions.plugins,
-                    tooltip: {
-                        callbacks: {
-                            title: (context) => {
-                                return new Date(context[0].parsed.x).toLocaleDateString();
-                            },
-                            label: (context) => {
-                                return `${context.parsed.y} session${context.parsed.y !== 1 ? 's' : ''}`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
 
     /**
      * Get training hours data for chart based on current period
@@ -377,54 +225,7 @@ class ChartManager {
         return { labels, values };
     }
 
-    /**
-     * Get progress data for chart
-     */
-    getProgressData() {
-        const sessions = storage.getAllSessions();
-        const monthlyData = {};
-        
-        sessions.forEach(session => {
-            const monthKey = this.getMonthKey(new Date(session.date));
-            if (!monthlyData[monthKey]) {
-                monthlyData[monthKey] = { sessions: 0, hours: 0 };
-            }
-            monthlyData[monthKey].sessions++;
-            monthlyData[monthKey].hours += session.duration / 60;
-        });
-        
-        const sortedKeys = Object.keys(monthlyData).sort();
-        const labels = sortedKeys.map(key => {
-            const [year, month] = key.split('-');
-            const date = new Date(year, month - 1);
-            return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-        });
-        
-        const sessionsData = sortedKeys.map(key => monthlyData[key].sessions);
-        const hoursData = sortedKeys.map(key => monthlyData[key].hours);
-        
-        return { labels, sessions: sessionsData, hours: hoursData };
-    }
 
-    /**
-     * Get consistency data for chart
-     */
-    getConsistencyData() {
-        const sessions = storage.getAllSessions();
-        const dailyData = {};
-        
-        sessions.forEach(session => {
-            const date = session.date;
-            dailyData[date] = (dailyData[date] || 0) + 1;
-        });
-        
-        const points = Object.entries(dailyData).map(([date, count]) => ({
-            x: new Date(date).getTime(),
-            y: count
-        }));
-        
-        return { points };
-    }
 
     /**
      * Update all charts with latest data
@@ -456,16 +257,6 @@ class ChartManager {
                 newData = this.getTrainingTypesData();
                 chart.data.labels = newData.labels;
                 chart.data.datasets[0].data = newData.values;
-                break;
-            case 'progress':
-                newData = this.getProgressData();
-                chart.data.labels = newData.labels;
-                chart.data.datasets[0].data = newData.sessions;
-                chart.data.datasets[1].data = newData.hours;
-                break;
-            case 'consistency':
-                newData = this.getConsistencyData();
-                chart.data.datasets[0].data = newData.points;
                 break;
         }
         

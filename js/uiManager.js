@@ -382,14 +382,6 @@ class UIManager {
                         <h3 class="chart-title">Training Types Distribution</h3>
                         <canvas id="training-types-chart" class="chart-canvas"></canvas>
                     </div>
-                    <div class="chart-wrapper">
-                        <h3 class="chart-title">Monthly Progress</h3>
-                        <canvas id="progress-chart" class="chart-canvas"></canvas>
-                    </div>
-                    <div class="chart-wrapper">
-                        <h3 class="chart-title">Training Consistency</h3>
-                        <canvas id="consistency-chart" class="chart-canvas"></canvas>
-                    </div>
                 </div>
             </div>
         `;
