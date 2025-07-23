@@ -433,9 +433,10 @@ class StatisticsPredictor {
                     estimatedDate: this.getEstimatedDate(monthsNeeded),
                     confidence: Math.max(20, 90 - (monthsNeeded * 5)) // Decreasing confidence over time
                 });
-                
-                accumulatedHours = hourRequirement.value;
             }
+            
+            // Always update accumulated hours to current belt requirement for next iteration
+            accumulatedHours = hourRequirement.value;
         }
         
         return {
