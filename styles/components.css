@@ -429,15 +429,105 @@
     position: relative;
 }
 
-.chart-title {
-    text-align: center;
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.chart-title {
     color: var(--text-primary);
     font-weight: 600;
+    margin: 0;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.period-selector {
+    display: flex;
+    gap: var(--space-xs);
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-xs);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.period-btn {
+    background: transparent;
+    border: none;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.period-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.period-btn.active {
+    background: var(--accent-primary);
+    color: white;
+    box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+}
+
+.chart-info i {
+    color: var(--text-tertiary);
+    font-size: 1.1rem;
+    cursor: help;
+    transition: color 0.2s ease;
+}
+
+.chart-info i:hover {
+    color: var(--accent-primary);
 }
 
 .chart-canvas {
     max-height: 400px;
+    cursor: grab;
+    touch-action: pan-y;
+}
+
+.chart-canvas:active {
+    cursor: grabbing;
+}
+
+
+
+/* Responsive adjustments for chart controls */
+@media (max-width: 768px) {
+    .chart-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .chart-controls {
+        justify-content: space-between;
+    }
+    
+    .period-selector {
+        flex: 1;
+    }
+    
+    .period-btn {
+        flex: 1;
+        text-align: center;
+        padding: var(--space-sm);
+        font-size: 0.8rem;
+    }
 }
 
 /* Filters and Search */
