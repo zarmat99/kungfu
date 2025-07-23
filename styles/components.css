@@ -205,7 +205,7 @@
 
 .session-actions {
     position: absolute;
-    top: var(--space-md);
+    bottom: var(--space-md);
     right: var(--space-md);
     display: flex;
     gap: var(--space-xs);
