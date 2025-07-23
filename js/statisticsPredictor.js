@@ -394,10 +394,10 @@ class StatisticsPredictor {
         const predictedMonthlyHours = monthlyPrediction.hours;
         
         const predictions = [];
-        let monthsFromNow = 0;
+        let cumulativeMonths = 0;
         
-        // Predict next 3 belt progressions
-        for (let i = currentBeltIndex + 1; i < Math.min(belts.length, currentBeltIndex + 4); i++) {
+        // Predict all remaining belt progressions
+        for (let i = currentBeltIndex + 1; i < belts.length; i++) {
             const beltName = belts[i];
             const requirements = beltRequirements[beltName];
             
@@ -421,17 +421,27 @@ class StatisticsPredictor {
                 });
             } else if (predictedMonthlyHours > 0) {
                 const monthsNeeded = Math.ceil(hoursNeeded / predictedMonthlyHours);
-                monthsFromNow += monthsNeeded;
+                cumulativeMonths += monthsNeeded;
+                
+                // Calculate confidence based on time distance and data quality
+                let confidence;
+                if (cumulativeMonths <= 12) {
+                    confidence = Math.max(70, 95 - (cumulativeMonths * 2)); // High confidence for 1st year
+                } else if (cumulativeMonths <= 36) {
+                    confidence = Math.max(40, 70 - ((cumulativeMonths - 12) * 1.5)); // Medium confidence for 2-3 years
+                } else {
+                    confidence = Math.max(15, 40 - ((cumulativeMonths - 36) * 0.5)); // Lower confidence for 3+ years
+                }
                 
                 predictions.push({
                     belt: beltName,
                     beltTitle: this.getBeltTitle(beltName),
                     hoursRequired: hourRequirement.value,
                     hoursNeeded: Math.round(hoursNeeded * 10) / 10,
-                    timeEstimate: this.formatTimeEstimate(monthsNeeded),
-                    months: monthsNeeded,
-                    estimatedDate: this.getEstimatedDate(monthsNeeded),
-                    confidence: Math.max(20, 90 - (monthsNeeded * 5)) // Decreasing confidence over time
+                    timeEstimate: this.formatTimeEstimate(cumulativeMonths),
+                    months: cumulativeMonths,
+                    estimatedDate: this.getEstimatedDate(cumulativeMonths),
+                    confidence: Math.round(confidence)
                 });
             }
         }

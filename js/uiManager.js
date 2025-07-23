@@ -1207,17 +1207,33 @@ class UIManager {
                 <h3>Current: ${beltProgression.currentBelt.title}</h3>
                 <p>Training Hours: ${beltProgression.currentBelt.hours}</p>
                 <p>Monthly Rate: ${beltProgression.monthlyRate} hours/month</p>
+                <p class="prediction-summary">Showing progression for all ${beltProgression.predictions.length} remaining belts</p>
             </div>
             <div class="belt-predictions">
         `;
         
-        beltProgression.predictions.forEach(prediction => {
+        let currentGroup = '';
+        beltProgression.predictions.forEach((prediction, index) => {
+            // Add group headers for visual organization
+            const isBlackBelt = prediction.belt.startsWith('black-');
+            const newGroup = isBlackBelt ? 'Black Belt Degrees' : 'Colored Belts';
+            
+            if (newGroup !== currentGroup) {
+                if (index > 0) html += '</div>'; // Close previous group
+                html += `<div class="belt-group">
+                    <h3 class="belt-group-title">${newGroup}</h3>
+                    <div class="belt-group-items">`;
+                currentGroup = newGroup;
+            }
+            
             const confidenceClass = prediction.confidence > 70 ? 'high' : prediction.confidence > 40 ? 'medium' : 'low';
+            const beltClass = isBlackBelt ? 'black-belt' : 'colored-belt';
+            
             html += `
-                <div class="belt-prediction-item">
+                <div class="belt-prediction-item ${beltClass}">
                     <div class="belt-info">
                         <h4>${prediction.beltTitle}</h4>
-                        <p class="hours-needed">${prediction.hoursNeeded} more hours needed</p>
+                        <p class="hours-needed">${prediction.hoursNeeded} more hours needed (${prediction.hoursRequired} total)</p>
                     </div>
                     <div class="time-estimate">
                         <span class="estimate">${prediction.timeEstimate}</span>
@@ -1229,6 +1245,22 @@ class UIManager {
                 </div>
             `;
         });
+        
+        if (beltProgression.predictions.length > 0) {
+            html += '</div></div>'; // Close last group
+            
+            // Add note for long-term predictions
+            const lastPrediction = beltProgression.predictions[beltProgression.predictions.length - 1];
+            if (lastPrediction && lastPrediction.months > 60) {
+                html += `
+                    <div class="long-term-note">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Long-term predictions (beyond 5 years) are estimates based on current training patterns. 
+                        Actual progress may vary with changes in training intensity, life circumstances, and personal goals.</p>
+                    </div>
+                `;
+            }
+        }
         
         html += '</div>';
         container.innerHTML = html;
