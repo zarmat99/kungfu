@@ -92,7 +92,7 @@ class UIManager {
 
         // Listen for prediction updates
         window.addEventListener('predictionsUpdated', () => {
-            if (this.currentView === 'predictions') {
+            if (this.currentView === 'stats') {
                 this.updatePredictionsDisplay();
             }
         });
@@ -126,7 +126,6 @@ class UIManager {
             'calendar',
             'stats',
             'rewards',
-            'predictions',
             'achievements',
             'settings'
         ];
@@ -176,8 +175,6 @@ class UIManager {
                 return this.createStatsComponent();
             case 'rewards':
                 return this.createRewardsComponent();
-            case 'predictions':
-                return this.createPredictionsComponent();
             case 'achievements':
                 return this.createAchievementsComponent();
             case 'settings':
@@ -219,14 +216,10 @@ class UIManager {
                             <i class="fas fa-chart-bar"></i>
                             <span>Statistics</span>
                         </div>
-                                        <div class="nav-item" data-view="rewards">
-                    <i class="fas fa-trophy"></i>
-                    <span>Belts</span>
-                </div>
-                <div class="nav-item" data-view="predictions">
-                    <i class="fas fa-crystal-ball"></i>
-                    <span>Predictions</span>
-                </div>
+                        <div class="nav-item" data-view="rewards">
+                            <i class="fas fa-trophy"></i>
+                            <span>Belts</span>
+                        </div>
                         <div class="nav-item" data-view="achievements">
                             <i class="fas fa-medal"></i>
                             <span>Achievements</span>
@@ -365,15 +358,17 @@ class UIManager {
     }
 
     /**
-     * Create stats component
+     * Create stats component (now includes predictions)
      */
     createStatsComponent() {
         return `
             <div class="stats-section">
-                <div class="stats-overview grid grid-1">
-                    
+                <div class="view-header">
+                    <h1><i class="fas fa-chart-bar"></i> Statistics & Predictions</h1>
+                    <p>Comprehensive training analytics and future progress forecasts</p>
                 </div>
                 
+                <!-- Charts Section -->
                 <div class="charts-grid grid grid-2">
                     <div class="chart-wrapper">
                         <div class="chart-header">
@@ -397,22 +392,14 @@ class UIManager {
                         <canvas id="training-types-chart" class="chart-canvas"></canvas>
                     </div>
                 </div>
-            </div>
-        `;
-    }
 
-    /**
-     * Create predictions component
-     */
-    createPredictionsComponent() {
-        return `
-            <div class="view" id="predictions-view">
-                <div class="view-header">
-                    <h1><i class="fas fa-crystal-ball"></i> Training Predictions</h1>
-                    <p>Forecast your future training progress and belt achievements</p>
-                </div>
-                
+                <!-- Predictions Section -->
                 <div class="predictions-container">
+                    <div class="section-header">
+                        <h2><i class="fas fa-crystal-ball"></i> Training Predictions</h2>
+                        <p>Forecast your future training progress and belt achievements</p>
+                    </div>
+                    
                     <!-- Prediction Summary Cards -->
                     <div class="predictions-summary grid grid-3">
                         <div class="prediction-card">
@@ -510,7 +497,7 @@ class UIManager {
                                         <option value="exponential">Exponential</option>
                                     </select>
                                 </div>
-                                <button class="btn btn-primary" onclick="uiManager.updatePredictions()">
+                                <button class="btn btn-primary" onclick="uiManager.updatePredictionsDisplay()">
                                     <i class="fas fa-sync"></i> Update Predictions
                                 </button>
                             </div>
@@ -520,6 +507,8 @@ class UIManager {
             </div>
         `;
     }
+
+
 
     /**
      * Create rewards component
@@ -654,9 +643,6 @@ class UIManager {
             case 'rewards':
                 contentDiv.innerHTML = this.components.rewards;
                 break;
-            case 'predictions':
-                contentDiv.innerHTML = this.components.predictions;
-                break;
             case 'achievements':
                 contentDiv.innerHTML = this.components.achievements;
                 break;
@@ -758,9 +744,6 @@ class UIManager {
                 break;
             case 'rewards':
                 this.updateBeltDisplay();
-                break;
-            case 'predictions':
-                this.initializePredictions();
                 break;
             case 'achievements':
                 this.updateAchievements();
@@ -981,13 +964,25 @@ class UIManager {
     }
 
     /**
-     * Initialize stats
+     * Initialize stats (now includes predictions)
      */
     initializeStats() {
         if (window.chartManager) {
             chartManager.initializeCharts();
         }
         this.updateStatsDisplay();
+        
+        // Initialize predictions functionality
+        this.updatePredictionsDisplay();
+        
+        // Bind prediction model change event
+        const modelSelect = document.getElementById('prediction-model');
+        if (modelSelect) {
+            modelSelect.addEventListener('change', (e) => {
+                statisticsPredictor.setPredictionModel(e.target.value);
+                this.updatePredictionsDisplay();
+            });
+        }
     }
 
     /**
@@ -1134,21 +1129,7 @@ class UIManager {
         });
     }
 
-    /**
-     * Initialize predictions
-     */
-    initializePredictions() {
-        this.updatePredictionsDisplay();
-        
-        // Bind prediction model change event
-        const modelSelect = document.getElementById('prediction-model');
-        if (modelSelect) {
-            modelSelect.addEventListener('change', (e) => {
-                statisticsPredictor.setPredictionModel(e.target.value);
-                this.updatePredictionsDisplay();
-            });
-        }
-    }
+
 
     /**
      * Update predictions display
@@ -1412,7 +1393,7 @@ class UIManager {
      * Update predictions (called from UI)
      */
     updatePredictions() {
-        if (this.currentView === 'predictions') {
+        if (this.currentView === 'stats') {
             this.updatePredictionsDisplay();
         }
     }

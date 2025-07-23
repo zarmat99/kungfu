@@ -257,10 +257,6 @@ class KungFuTracker {
                         e.preventDefault();
                         this.modules.router.navigateTo('rewards');
                         break;
-                    case 'p':
-                        e.preventDefault();
-                        this.modules.router.navigateTo('predictions');
-                        break;
                 }
             }
 
@@ -285,7 +281,6 @@ class KungFuTracker {
             { key: 'Ctrl+C', description: 'View Calendar' },
             { key: 'Ctrl+T', description: 'View Statistics' },
             { key: 'Ctrl+B', description: 'View Belts' },
-            { key: 'Ctrl+P', description: 'View Predictions' },
             { key: '?', description: 'Show this help' }
         ];
 

@@ -57,13 +57,6 @@ class Router {
             title: 'Belt System - Kung Fu Tracker',
             requiresAuth: false
         });
-
-        this.routes.set('predictions', {
-            path: '/predictions',
-            component: 'predictions',
-            title: 'Training Predictions - Kung Fu Tracker',
-            requiresAuth: false
-        });
     }
 
     /**
@@ -186,7 +179,7 @@ class Router {
             'session-form': 'Add new training sessions to your Kung Fu journey',
             'session-list': 'View and manage all your training sessions',
             'calendar': 'Calendar view of your training schedule',
-            'stats': 'Detailed statistics and charts of your training progress',
+            'stats': 'Detailed statistics, charts, and future training predictions',
             'rewards': 'Track your belt progression and achievements'
         };
 
