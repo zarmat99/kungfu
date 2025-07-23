@@ -53,7 +53,7 @@ The Training Hours Over Time chart now supports interactive period modification 
 - `handleSwipeGesture()`: Processes swipe gestures
 - `changePeriodRange(direction)`: Adjusts the number of periods shown
 - `changePeriodType(newPeriod)`: Changes the period type (daily/weekly/etc.)
-- `showPeriodChangeNotification()`: Shows visual feedback for changes
+
 
 #### UIManager Class
 - `handlePeriodSelection(button)`: Handles period button clicks
