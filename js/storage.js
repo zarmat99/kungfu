@@ -204,18 +204,25 @@ class Storage {
 
         // Total stats
         const totalSessions = sessions.length;
-        const totalHours = sessions.reduce((sum, session) => sum + session.duration, 0) / 60;
+        const totalHours = sessions.reduce((sum, session) => {
+            const weight = session.type === 'teacher-free' ? 0.5 : 1.0;
+            return sum + (session.duration * weight);
+        }, 0) / 60;
 
         // Monthly stats
         const monthlySessions = sessions.filter(session => 
             new Date(session.date) >= oneMonthAgo
         );
-        const monthlyHours = monthlySessions.reduce((sum, session) => sum + session.duration, 0) / 60;
+        const monthlyHours = monthlySessions.reduce((sum, session) => {
+            const weight = session.type === 'teacher-free' ? 0.5 : 1.0;
+            return sum + (session.duration * weight);
+        }, 0) / 60;
 
         // Training types distribution
         const typeDistribution = {};
         sessions.forEach(session => {
-            typeDistribution[session.type] = (typeDistribution[session.type] || 0) + session.duration;
+            const weight = session.type === 'teacher-free' ? 0.5 : 1.0;
+            typeDistribution[session.type] = (typeDistribution[session.type] || 0) + (session.duration * weight);
         });
 
         return {

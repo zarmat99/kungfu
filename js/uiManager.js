@@ -271,6 +271,15 @@ class UIManager {
                                     <option value="">Select training type...</option>
                                     ${typeOptions}
                                 </select>
+                                <div id="training-effectiveness-info" class="training-effectiveness-info" style="display: none;">
+                                    <div class="effectiveness-badge">
+                                        <span class="effectiveness-label">Effectiveness:</span>
+                                        <span id="effectiveness-percentage" class="effectiveness-percentage">100%</span>
+                                    </div>
+                                    <div class="effectiveness-description">
+                                        <span id="effectiveness-description-text">Full effectiveness</span>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -801,11 +810,17 @@ class UIManager {
      * Create session card HTML
      */
     createSessionCard(session) {
+        const weight = sessionManager.getTrainingTypeWeight(session.type);
+        const effectiveDuration = Math.round(session.duration * weight);
+        const durationDisplay = weight < 1.0 
+            ? `${sessionManager.formatDuration(session.duration)} → ${sessionManager.formatDuration(effectiveDuration)} effective`
+            : sessionManager.formatDuration(session.duration);
+        
         return `
             <div class="session-card animate-fadeIn">
                 <div class="session-header">
                     <div class="session-date">${sessionManager.formatDate(session.date)}</div>
-                    <div class="session-duration">${sessionManager.formatDuration(session.duration)}</div>
+                    <div class="session-duration ${weight < 1.0 ? 'reduced-effectiveness' : ''}">${durationDisplay}</div>
                 </div>
                 <div class="session-type">${session.type}</div>
                 <div class="session-notes">${session.notes || 'No notes provided'}</div>
@@ -1473,15 +1488,23 @@ class UIManager {
             return;
         }
         
-        container.innerHTML = sessions.map(session => `
-            <div class="session-summary">
-                <div class="session-info">
-                    <strong>${session.type}</strong>
-                    <span class="session-duration">${sessionManager.formatDuration(session.duration)}</span>
+        container.innerHTML = sessions.map(session => {
+            const weight = sessionManager.getTrainingTypeWeight(session.type);
+            const effectiveDuration = Math.round(session.duration * weight);
+            const durationDisplay = weight < 1.0 
+                ? `${sessionManager.formatDuration(session.duration)} → ${sessionManager.formatDuration(effectiveDuration)} effective`
+                : sessionManager.formatDuration(session.duration);
+            
+            return `
+                <div class="session-summary">
+                    <div class="session-info">
+                        <strong>${session.type}</strong>
+                        <span class="session-duration ${weight < 1.0 ? 'reduced-effectiveness' : ''}">${durationDisplay}</span>
+                    </div>
+                    <div class="session-date">${sessionManager.getRelativeDate(session.date)}</div>
                 </div>
-                <div class="session-date">${sessionManager.getRelativeDate(session.date)}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     /**

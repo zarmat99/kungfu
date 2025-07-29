@@ -7,7 +7,8 @@ class SessionManager {
     constructor() {
         this.trainingTypes = [
             'Shaolin / Yiquan / Taijiquan',
-            'tuishou / sanda'
+            'tuishou / sanda',
+            'teacher-free'
         ];
         
         this.currentEditingSession = null;
@@ -43,6 +44,11 @@ class SessionManager {
             if (e.target.classList.contains('session-filter')) {
                 this.handleFilterChange(e.target);
             }
+            
+            // Handle training type selection for effectiveness display
+            if (e.target.id === 'session-type') {
+                this.handleTrainingTypeChange(e.target.value);
+            }
         });
 
         // Listen for search input
@@ -58,6 +64,25 @@ class SessionManager {
      */
     getTrainingTypes() {
         return this.trainingTypes;
+    }
+
+    /**
+     * Get training type effectiveness weight
+     */
+    getTrainingTypeWeight(type) {
+        return type === 'teacher-free' ? 0.5 : 1.0;
+    }
+
+    /**
+     * Get training type effectiveness info
+     */
+    getTrainingTypeInfo(type) {
+        const weight = this.getTrainingTypeWeight(type);
+        return {
+            weight: weight,
+            effectiveness: weight === 1.0 ? '100%' : `${Math.round(weight * 100)}%`,
+            description: weight === 1.0 ? 'Full effectiveness' : 'Reduced effectiveness (self-guided training)'
+        };
     }
 
     /**
@@ -371,6 +396,36 @@ class SessionManager {
      */
     getSessionStats() {
         return storage.getStats();
+    }
+
+    /**
+     * Handle training type selection change
+     */
+    handleTrainingTypeChange(selectedType) {
+        const effectivenessInfo = document.getElementById('training-effectiveness-info');
+        const effectivenessPercentage = document.getElementById('effectiveness-percentage');
+        const effectivenessDescription = document.getElementById('effectiveness-description-text');
+        
+        if (!effectivenessInfo || !effectivenessPercentage || !effectivenessDescription) {
+            return; // Elements not found, probably not on the form page
+        }
+        
+        if (selectedType && selectedType !== '') {
+            const typeInfo = this.getTrainingTypeInfo(selectedType);
+            
+            effectivenessPercentage.textContent = typeInfo.effectiveness;
+            effectivenessDescription.textContent = typeInfo.description;
+            
+            // Add visual styling based on effectiveness
+            effectivenessPercentage.className = 'effectiveness-percentage';
+            if (typeInfo.weight < 1.0) {
+                effectivenessPercentage.classList.add('reduced-effectiveness');
+            }
+            
+            effectivenessInfo.style.display = 'block';
+        } else {
+            effectivenessInfo.style.display = 'none';
+        }
     }
 
     /**

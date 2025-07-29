@@ -186,6 +186,12 @@
     font-weight: 600;
 }
 
+.session-duration.reduced-effectiveness {
+    background: var(--warning);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+}
+
 .session-type {
     display: inline-block;
     background: var(--bg-tertiary);
@@ -861,6 +867,12 @@
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
     color: var(--text-secondary);
+}
+
+.session-info .session-duration.reduced-effectiveness {
+    background: var(--warning);
+    color: var(--text-primary);
+    font-size: 0.75rem;
 }
 
 .session-date {
@@ -1916,4 +1928,47 @@
     .day-column {
         min-width: 40px;
     }
+}
+
+/* Training Effectiveness Display */
+.training-effectiveness-info {
+    margin-top: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--surface-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-primary);
+}
+
+.effectiveness-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-xs);
+}
+
+.effectiveness-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.effectiveness-percentage {
+    background: var(--success);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--border-radius-sm);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: var(--transition-fast);
+}
+
+.effectiveness-percentage.reduced-effectiveness {
+    background: var(--warning);
+    color: var(--text-primary);
+}
+
+.effectiveness-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
 }
