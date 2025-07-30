@@ -241,9 +241,9 @@ class UIManager {
      * Create session form component
      */
     createSessionFormComponent() {
-        const trainingTypes = sessionManager.getTrainingTypes();
-        const typeOptions = trainingTypes.map(type => 
-            `<option value="${type}">${type}</option>`
+        const trainingTypes = sessionManager.getTrainingTypesWithInfo();
+        const typeOptions = trainingTypes.map(typeInfo => 
+            `<option value="${typeInfo.type}" data-weight="${typeInfo.weight}">${typeInfo.type} (${typeInfo.effectiveness})</option>`
         ).join('');
 
         return `
@@ -263,6 +263,9 @@ class UIManager {
                                 <label for="session-duration" class="form-label">Duration (minutes)</label>
                                 <input type="number" id="session-duration" name="duration" class="form-input" 
                                        min="1" max="480" required placeholder="60">
+                                <div id="effective-hours-display" class="effective-hours-info" style="display: none;">
+                                    <small>Effective training hours: <span id="effective-hours-value">0</span></small>
+                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -311,8 +314,8 @@ class UIManager {
                         <div class="form-group">
                             <select name="type" class="form-select session-filter">
                                 <option value="all">All Types</option>
-                                ${sessionManager.getTrainingTypes().map(type => 
-                                    `<option value="${type}">${type}</option>`
+                                ${sessionManager.getTrainingTypesWithInfo().map(typeInfo => 
+                                    `<option value="${typeInfo.type}">${typeInfo.type} (${typeInfo.effectiveness})</option>`
                                 ).join('')}
                             </select>
                         </div>
@@ -762,6 +765,50 @@ class UIManager {
         if (dateInput && !dateInput.value) {
             dateInput.value = new Date().toISOString().split('T')[0];
         }
+        
+        // Add event listeners for effective hours calculation
+        this.setupEffectiveHoursCalculation();
+    }
+
+    /**
+     * Setup effective hours calculation display
+     */
+    setupEffectiveHoursCalculation() {
+        const typeSelect = document.getElementById('session-type');
+        const durationInput = document.getElementById('session-duration');
+        const effectiveDisplay = document.getElementById('effective-hours-display');
+        const effectiveValue = document.getElementById('effective-hours-value');
+        
+        if (!typeSelect || !durationInput || !effectiveDisplay || !effectiveValue) return;
+        
+        const updateEffectiveHours = () => {
+            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+            const duration = parseInt(durationInput.value) || 0;
+            
+            if (selectedOption && duration > 0) {
+                const weight = parseFloat(selectedOption.dataset.weight) || 1.0;
+                const effectiveMinutes = duration * weight;
+                const effectiveHours = (effectiveMinutes / 60).toFixed(2);
+                
+                effectiveValue.textContent = `${effectiveHours}h`;
+                effectiveDisplay.style.display = 'block';
+                
+                // Add visual styling based on effectiveness
+                if (weight < 1.0) {
+                    effectiveDisplay.className = 'effective-hours-info reduced-effectiveness';
+                } else {
+                    effectiveDisplay.className = 'effective-hours-info full-effectiveness';
+                }
+            } else {
+                effectiveDisplay.style.display = 'none';
+            }
+        };
+        
+        typeSelect.addEventListener('change', updateEffectiveHours);
+        durationInput.addEventListener('input', updateEffectiveHours);
+        
+        // Initial calculation
+        updateEffectiveHours();
     }
 
     /**

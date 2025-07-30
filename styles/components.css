@@ -1917,3 +1917,29 @@
         min-width: 40px;
     }
 }
+
+/* Effective Hours Display */
+.effective-hours-info {
+    margin-top: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    transition: all var(--transition-normal);
+}
+
+.effective-hours-info.full-effectiveness {
+    background: var(--success-bg, #e8f5e8);
+    color: var(--success-text, #2d5016);
+    border: 1px solid var(--success-border, #4caf50);
+}
+
+.effective-hours-info.reduced-effectiveness {
+    background: var(--warning-bg, #fff3cd);
+    color: var(--warning-text, #856404);
+    border: 1px solid var(--warning-border, #ffc107);
+}
+
+#effective-hours-value {
+    font-weight: 600;
+    color: inherit;
+}

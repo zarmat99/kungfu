@@ -7,7 +7,8 @@ class SessionManager {
     constructor() {
         this.trainingTypes = [
             'Shaolin / Yiquan / Taijiquan',
-            'tuishou / sanda'
+            'tuishou / sanda',
+            'teacher-free'
         ];
         
         this.currentEditingSession = null;
@@ -58,6 +59,38 @@ class SessionManager {
      */
     getTrainingTypes() {
         return this.trainingTypes;
+    }
+
+    /**
+     * Get training type weights for hour calculation
+     */
+    getTrainingTypeWeights() {
+        return {
+            'Shaolin / Yiquan / Taijiquan': 1.0,
+            'tuishou / sanda': 1.0,
+            'teacher-free': 0.5
+        };
+    }
+
+    /**
+     * Get training type info including weight and effectiveness
+     */
+    getTrainingTypeInfo(type) {
+        const weights = this.getTrainingTypeWeights();
+        const weight = weights[type] || 1.0;
+        
+        return {
+            type: type,
+            weight: weight,
+            effectiveness: weight === 1.0 ? 'Full effectiveness' : `${Math.round(weight * 100)}% effectiveness`
+        };
+    }
+
+    /**
+     * Get all training types with their info
+     */
+    getTrainingTypesWithInfo() {
+        return this.trainingTypes.map(type => this.getTrainingTypeInfo(type));
     }
 
     /**
