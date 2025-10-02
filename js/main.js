@@ -11,9 +11,9 @@ class KungFuTracker {
             sessionManager: null,
             chartManager: null,
             rewardSystem: null,
+            simplePredictor: null,
             uiManager: null,
-            router: null,
-            statisticsPredictor: null
+            router: null
         };
         
         this.startTime = Date.now();
@@ -129,9 +129,9 @@ class KungFuTracker {
         this.modules.sessionManager = window.sessionManager;
         this.modules.chartManager = window.chartManager;
         this.modules.rewardSystem = window.rewardSystem;
+        this.modules.simplePredictor = window.simplePredictor;
         this.modules.uiManager = window.uiManager;
         this.modules.router = window.router;
-        this.modules.statisticsPredictor = window.statisticsPredictor;
 
         // Verify all modules are available
         const missingModules = Object.entries(this.modules)

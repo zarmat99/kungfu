@@ -90,12 +90,6 @@ class UIManager {
             }
         });
 
-        // Listen for prediction updates
-        window.addEventListener('predictionsUpdated', () => {
-            if (this.currentView === 'stats') {
-                this.updatePredictionsDisplay();
-            }
-        });
     }
 
     /**
@@ -361,16 +355,16 @@ class UIManager {
     }
 
     /**
-     * Create stats component (now includes predictions)
+     * Create stats component
      */
     createStatsComponent() {
         return `
             <div class="stats-section">
                 <div class="view-header">
-                    <h1><i class="fas fa-chart-bar"></i> Statistics & Predictions</h1>
-                    <p>Comprehensive training analytics and future progress forecasts</p>
+                    <h1><i class="fas fa-chart-bar"></i> Statistics</h1>
+                    <p>Comprehensive training analytics and insights</p>
                 </div>
-                
+
                 <!-- Charts Section -->
                 <div class="charts-grid grid grid-2">
                     <div class="chart-wrapper">
@@ -396,115 +390,33 @@ class UIManager {
                     </div>
                 </div>
 
-                <!-- Predictions Section -->
-                <div class="predictions-container">
-                    <div class="section-header">
-                        <h2><i class="fas fa-crystal-ball"></i> Training Predictions</h2>
-                        <p>Forecast your future training progress and belt achievements</p>
+                <!-- Training Statistics -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Training Statistics</h2>
                     </div>
-                    
-                    <!-- Prediction Summary Cards -->
-                    <div class="predictions-summary grid grid-3">
-                        <div class="prediction-card">
-                            <div class="prediction-header">
-                                <i class="fas fa-calendar-week"></i>
-                                <h3>Next Week</h3>
-                            </div>
-                            <div class="prediction-value" id="weekly-prediction">0 hours</div>
-                            <div class="prediction-confidence" id="weekly-confidence">0% confidence</div>
-                        </div>
-                        
-                        <div class="prediction-card">
-                            <div class="prediction-header">
-                                <i class="fas fa-calendar-alt"></i>
-                                <h3>Next Month</h3>
-                            </div>
-                            <div class="prediction-value" id="monthly-prediction">0 hours</div>
-                            <div class="prediction-confidence" id="monthly-confidence">0% confidence</div>
-                        </div>
-                        
-                        <div class="prediction-card">
-                            <div class="prediction-header">
-                                <i class="fas fa-calendar"></i>
-                                <h3>Next Year</h3>
-                            </div>
-                            <div class="prediction-value" id="yearly-prediction">0 hours</div>
-                            <div class="prediction-confidence" id="yearly-confidence">0% confidence</div>
-                        </div>
+                    <div class="card-body" id="training-statistics">
+                        <!-- Training statistics will be loaded here -->
                     </div>
+                </div>
 
-                    <!-- Belt Progression Predictions -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2><i class="fas fa-trophy"></i> Belt Progression Forecast</h2>
-                        </div>
-                        <div class="card-body" id="belt-progression-predictions">
-                            <!-- Belt predictions will be loaded here -->
-                        </div>
+                <!-- Belt Progression Predictions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-crystal-ball"></i> Belt Progression Forecast</h2>
                     </div>
-
-                    <!-- Training Milestones -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2><i class="fas fa-flag-checkered"></i> Upcoming Milestones</h2>
-                        </div>
-                        <div class="card-body" id="milestone-predictions">
-                            <!-- Milestone predictions will be loaded here -->
-                        </div>
+                    <div class="card-body" id="belt-predictions">
+                        <!-- Belt predictions will be loaded here -->
                     </div>
+                </div>
 
-                    <!-- Training Trends & Analysis -->
-                    <div class="predictions-analysis grid grid-2">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2><i class="fas fa-chart-line"></i> Training Trends</h2>
-                            </div>
-                            <div class="card-body" id="training-trends">
-                                <!-- Trend analysis will be loaded here -->
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h2><i class="fas fa-lightbulb"></i> Recommendations</h2>
-                            </div>
-                            <div class="card-body" id="training-recommendations">
-                                <!-- Recommendations will be loaded here -->
-                            </div>
-                        </div>
+                <!-- Simple Predictions Section (backward compatibility) -->
+                <div class="card" style="display: none;">
+                    <div class="card-header">
+                        <h2><i class="fas fa-crystal-ball"></i> Next Belt Prediction</h2>
                     </div>
-
-                    <!-- Weekly Pattern Analysis -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2><i class="fas fa-calendar-week"></i> Weekly Training Pattern</h2>
-                        </div>
-                        <div class="card-body" id="weekly-pattern">
-                            <!-- Weekly pattern analysis will be loaded here -->
-                        </div>
-                    </div>
-
-                    <!-- Prediction Settings -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2><i class="fas fa-cog"></i> Prediction Settings</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="prediction-settings">
-                                <div class="setting-group">
-                                    <label for="prediction-model">Prediction Model:</label>
-                                    <select id="prediction-model" class="form-control">
-                                        <option value="adaptive">Adaptive (Recommended)</option>
-                                        <option value="linear">Linear</option>
-                                        <option value="seasonal">Seasonal</option>
-                                        <option value="exponential">Exponential</option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-primary" onclick="uiManager.updatePredictionsDisplay()">
-                                    <i class="fas fa-sync"></i> Update Predictions
-                                </button>
-                            </div>
-                        </div>
+                    <div class="card-body" id="simple-predictions">
+                        <!-- Simple prediction will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -1011,25 +923,27 @@ class UIManager {
     }
 
     /**
-     * Initialize stats (now includes predictions)
+     * Initialize stats
      */
     initializeStats() {
         if (window.chartManager) {
             chartManager.initializeCharts();
         }
         this.updateStatsDisplay();
-        
-        // Initialize predictions functionality
-        this.updatePredictionsDisplay();
-        
-        // Bind prediction model change event
-        const modelSelect = document.getElementById('prediction-model');
-        if (modelSelect) {
-            modelSelect.addEventListener('change', (e) => {
-                statisticsPredictor.setPredictionModel(e.target.value);
-                this.updatePredictionsDisplay();
-            });
-        }
+
+        // Initialize all statistics and predictions
+        this.updateTrainingStatistics();
+        this.updateBeltPredictions();
+        this.updateSimplePredictions(); // Keep for backward compatibility
+
+        // Listen for simple prediction updates
+        window.addEventListener('simplePredictionsUpdated', () => {
+            if (this.currentView === 'stats') {
+                this.updateTrainingStatistics();
+                this.updateBeltPredictions();
+                this.updateSimplePredictions();
+            }
+        });
     }
 
     /**
@@ -1176,305 +1090,361 @@ class UIManager {
         });
     }
 
-
-
     /**
-     * Update predictions display
+     * Update simple predictions display
      */
-    updatePredictionsDisplay() {
-        const predictions = statisticsPredictor.getPredictions();
-        
-        // Update summary cards
-        this.updatePredictionSummary(predictions);
-        
-        // Update belt progression
-        this.updateBeltProgressionPredictions(predictions.beltProgression);
-        
-        // Update milestones
-        this.updateMilestonePredictions(predictions.milestones);
-        
-        // Update trends
-        this.updateTrainingTrends(predictions.trends);
-        
-        // Update recommendations
-        this.updateTrainingRecommendations(predictions.recommendations);
-        
-        // Update weekly pattern
-        this.updateWeeklyPattern(predictions);
-    }
-
-    /**
-     * Update prediction summary cards
-     */
-    updatePredictionSummary(predictions) {
-        // Weekly prediction
-        const weeklyElement = document.getElementById('weekly-prediction');
-        const weeklyConfidenceElement = document.getElementById('weekly-confidence');
-        if (weeklyElement && weeklyConfidenceElement) {
-            weeklyElement.textContent = `${predictions.weeklyPrediction.hours} hours`;
-            weeklyConfidenceElement.textContent = `${predictions.weeklyPrediction.confidence}% confidence`;
-        }
-        
-        // Monthly prediction
-        const monthlyElement = document.getElementById('monthly-prediction');
-        const monthlyConfidenceElement = document.getElementById('monthly-confidence');
-        if (monthlyElement && monthlyConfidenceElement) {
-            monthlyElement.textContent = `${predictions.monthlyPrediction.hours} hours`;
-            monthlyConfidenceElement.textContent = `${predictions.monthlyPrediction.confidence}% confidence`;
-        }
-        
-        // Yearly prediction
-        const yearlyElement = document.getElementById('yearly-prediction');
-        const yearlyConfidenceElement = document.getElementById('yearly-confidence');
-        if (yearlyElement && yearlyConfidenceElement) {
-            yearlyElement.textContent = `${predictions.yearlyPrediction.hours} hours`;
-            yearlyConfidenceElement.textContent = `${predictions.yearlyPrediction.confidence}% confidence`;
-        }
-    }
-
-    /**
-     * Update belt progression predictions
-     */
-    updateBeltProgressionPredictions(beltProgression) {
-        const container = document.getElementById('belt-progression-predictions');
+    updateSimplePredictions() {
+        const container = document.getElementById('simple-predictions');
         if (!container) return;
-        
-        if (beltProgression.message) {
-            container.innerHTML = `<p class="text-center">${beltProgression.message}</p>`;
-            return;
-        }
-        
-        if (!beltProgression.predictions || beltProgression.predictions.length === 0) {
-            container.innerHTML = `<p class="text-center">No belt progressions predicted with current training rate.</p>`;
-            return;
-        }
-        
-        let html = `
-            <div class="current-belt-info">
-                <h3>Current: ${beltProgression.currentBelt.title}</h3>
-                <p>Training Hours: ${beltProgression.currentBelt.hours}</p>
-                <p>Monthly Rate: ${beltProgression.monthlyRate} hours/month</p>
-                <p class="prediction-summary">Showing progression for all ${beltProgression.predictions.length} remaining belts</p>
-            </div>
-            <div class="belt-predictions">
-        `;
-        
-        let currentGroup = '';
-        beltProgression.predictions.forEach((prediction, index) => {
-            // Add group headers for visual organization
-            const isBlackBelt = prediction.belt.startsWith('black-');
-            const newGroup = isBlackBelt ? 'Black Belt Degrees' : 'Colored Belts';
-            
-            if (newGroup !== currentGroup) {
-                if (index > 0) html += '</div>'; // Close previous group
-                html += `<div class="belt-group">
-                    <h3 class="belt-group-title">${newGroup}</h3>
-                    <div class="belt-group-items">`;
-                currentGroup = newGroup;
-            }
-            
-            const confidenceClass = prediction.confidence > 70 ? 'high' : prediction.confidence > 40 ? 'medium' : 'low';
-            const beltClass = isBlackBelt ? 'black-belt' : 'colored-belt';
-            
-            html += `
-                <div class="belt-prediction-item ${beltClass}">
-                    <div class="belt-info">
-                        <h4>${prediction.beltTitle}</h4>
-                        <p class="hours-needed">${prediction.hoursNeeded} more hours needed (${prediction.hoursRequired} total)</p>
+
+        const prediction = simplePredictor.getNextBeltPrediction();
+        const insights = simplePredictor.getTrainingInsights();
+
+        let html = '';
+
+        if (prediction.isComplete) {
+            html = `
+                <div class="prediction-complete">
+                    <i class="fas fa-trophy" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                    <h3>${prediction.message}</h3>
+                </div>
+            `;
+        } else if (prediction.message && !prediction.nextBelt) {
+            html = `
+                <div class="prediction-empty">
+                    <i class="fas fa-chart-line" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                    <h3>${prediction.message}</h3>
+                    ${prediction.suggestion ? `<p style="color: var(--text-secondary);">${prediction.suggestion}</p>` : ''}
+                </div>
+            `;
+        } else if (prediction.isReady) {
+            html = `
+                <div class="prediction-ready">
+                    <i class="fas fa-star" style="font-size: 2.5rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                    <h3>${prediction.message}</h3>
+                    <div class="belt-info" style="margin-top: 1rem;">
+                        <p><strong>Next Belt:</strong> ${prediction.nextBelt}</p>
+                        <p><strong>Training Hours:</strong> ${prediction.currentHours} / ${prediction.requiredHours}</p>
                     </div>
-                    <div class="time-estimate">
-                        <span class="estimate">${prediction.timeEstimate}</span>
-                        <span class="date">${prediction.estimatedDate || ''}</span>
-                        <div class="confidence confidence-${confidenceClass}">
-                            ${prediction.confidence}% confidence
+                </div>
+            `;
+        } else {
+            const confidenceColor = prediction.confidence > 70 ? 'var(--success-dark)' :
+                                   prediction.confidence > 50 ? 'var(--warning-dark)' : 'var(--error-dark)';
+
+            html = `
+                <div class="prediction-result">
+                    <div class="prediction-header">
+                        <h3><i class="fas fa-crystal-ball"></i> Next Belt: ${prediction.nextBelt}</h3>
+                    </div>
+
+                    <div class="prediction-details" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <div class="detail-item">
+                            <strong>Time Estimate</strong>
+                            <p style="font-size: 1.2rem; color: var(--accent-primary);">${prediction.timeEstimate}</p>
+                            <small>${prediction.estimatedDate}</small>
+                        </div>
+
+                        <div class="detail-item">
+                            <strong>Progress</strong>
+                            <p>${prediction.currentHours} / ${prediction.requiredHours} hours</p>
+                            <small>${prediction.hoursNeeded} hours remaining</small>
+                        </div>
+
+                        <div class="detail-item">
+                            <strong>Training Rate</strong>
+                            <p>${prediction.monthlyRate} hours/month</p>
+                            <small>Based on recent activity</small>
+                        </div>
+
+                        <div class="detail-item">
+                            <strong>Confidence</strong>
+                            <p style="color: ${confidenceColor};">${prediction.confidence}%</p>
+                            <small>${prediction.confidence > 70 ? 'High' : prediction.confidence > 50 ? 'Medium' : 'Low'} reliability</small>
                         </div>
                     </div>
                 </div>
             `;
-        });
-        
-        if (beltProgression.predictions.length > 0) {
-            html += '</div></div>'; // Close last group
-            
-            // Add note for long-term predictions
-            const lastPrediction = beltProgression.predictions[beltProgression.predictions.length - 1];
-            if (lastPrediction && lastPrediction.months > 60) {
+        }
+
+        // Add insights if available
+        if (insights.insights && insights.insights.length > 0) {
+            html += `
+                <div class="training-insights" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+                    <h4><i class="fas fa-lightbulb"></i> Training Insights</h4>
+                    <div class="insights-list">
+            `;
+
+            insights.insights.forEach(insight => {
                 html += `
-                    <div class="long-term-note">
-                        <i class="fas fa-info-circle"></i>
-                        <p>Long-term predictions (beyond 5 years) are estimates based on current training patterns. 
-                        Actual progress may vary with changes in training intensity, life circumstances, and personal goals.</p>
+                    <div class="insight-item" style="display: flex; align-items: flex-start; gap: 0.75rem; margin: 0.75rem 0; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                        <i class="${insight.icon}" style="color: var(--accent-primary); margin-top: 0.2rem;"></i>
+                        <div>
+                            <strong>${insight.title}</strong>
+                            <p style="margin: 0.25rem 0 0 0; color: var(--text-secondary);">${insight.message}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+    }
+
+    /**
+     * Update training statistics display
+     */
+    updateTrainingStatistics() {
+        const container = document.getElementById('training-statistics');
+        if (!container) return;
+
+        const allPredictions = simplePredictor.getAllBeltsPredictions();
+        const stats = allPredictions.trainingStats;
+
+        if (!stats || stats.totalSessions === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                    <h3>No Training Data Yet</h3>
+                    <p>Start logging your training sessions to see detailed statistics!</p>
+                </div>
+            `;
+            return;
+        }
+
+        const html = `
+            <div class="statistics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <!-- Overall Statistics -->
+                <div class="stat-section">
+                    <h4><i class="fas fa-chart-bar"></i> Overall Training</h4>
+                    <div class="stat-items">
+                        <div class="stat-item">
+                            <strong>Total Sessions:</strong> ${stats.totalSessions}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Total Hours:</strong> ${stats.totalHours}h
+                        </div>
+                        <div class="stat-item">
+                            <strong>Average Session:</strong> ${stats.averageSessionLength}h
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Averages -->
+                <div class="stat-section">
+                    <h4><i class="fas fa-calendar-alt"></i> Training Averages</h4>
+                    <div class="stat-items">
+                        <div class="stat-item">
+                            <strong>Weekly Average:</strong> ${stats.weeklyAverage}h/week
+                        </div>
+                        <div class="stat-item">
+                            <strong>Monthly Average:</strong> ${stats.monthlyAverage}h/month
+                        </div>
+                        <div class="stat-item">
+                            <strong>Current Rate:</strong> ${allPredictions.monthlyRate}h/month
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="stat-section">
+                    <h4><i class="fas fa-clock"></i> Recent Activity (Last 30 Days)</h4>
+                    <div class="stat-items">
+                        <div class="stat-item">
+                            <strong>Sessions:</strong> ${stats.last30DaysInfo.sessions}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Training Hours:</strong> ${stats.last30DaysInfo.hours}h
+                        </div>
+                        <div class="stat-item">
+                            <strong>Sessions/Week:</strong> ${stats.last30DaysInfo.averagePerWeek}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- This Week -->
+                <div class="stat-section">
+                    <h4><i class="fas fa-calendar-week"></i> Last 7 Days</h4>
+                    <div class="stat-items">
+                        <div class="stat-item">
+                            <strong>Sessions:</strong> ${stats.last7DaysInfo.sessions}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Training Hours:</strong> ${stats.last7DaysInfo.hours}h
+                        </div>
+                        <div class="stat-item">
+                            <strong>Sessions/Day:</strong> ${stats.last7DaysInfo.averagePerDay}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    /**
+     * Update belt predictions display
+     */
+    updateBeltPredictions() {
+        const container = document.getElementById('belt-predictions');
+        if (!container) return;
+
+        const allPredictions = simplePredictor.getAllBeltsPredictions();
+
+        if (allPredictions.isComplete) {
+            container.innerHTML = `
+                <div class="prediction-complete" style="text-align: center; padding: 3rem 1rem;">
+                    <i class="fas fa-trophy" style="font-size: 4rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                    <h3>${allPredictions.message}</h3>
+                    <p style="color: var(--text-secondary); margin-top: 1rem;">You have mastered all belt levels!</p>
+                </div>
+            `;
+            return;
+        }
+
+        if (allPredictions.message && allPredictions.predictions.length === 0) {
+            container.innerHTML = `
+                <div class="prediction-empty" style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-chart-line" style="font-size: 2.5rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                    <h3>${allPredictions.message}</h3>
+                    ${allPredictions.suggestion ? `<p style="color: var(--text-secondary); margin-top: 1rem;">${allPredictions.suggestion}</p>` : ''}
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="current-belt-summary" style="background: var(--bg-tertiary); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border-left: 4px solid var(--accent-primary);">
+                <h3><i class="fas fa-medal"></i> Current: ${allPredictions.currentBelt.title}</h3>
+                <p><strong>Training Hours:</strong> ${allPredictions.currentBelt.hours}h</p>
+                <p><strong>Monthly Rate:</strong> ${allPredictions.monthlyRate}h/month | <strong>Weekly Rate:</strong> ${allPredictions.weeklyRate}h/week</p>
+            </div>
+        `;
+
+        if (allPredictions.predictions && allPredictions.predictions.length > 0) {
+            html += `
+                <div class="predictions-list">
+                    <h4><i class="fas fa-list"></i> Remaining Belt Progression (${allPredictions.predictions.length} belts)</h4>
+                    <div class="belt-predictions-grid" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+            `;
+
+            // Group predictions by timeframe for better visualization
+            const shortTerm = allPredictions.predictions.filter(p => p.monthsNeeded <= 12);
+            const mediumTerm = allPredictions.predictions.filter(p => p.monthsNeeded > 12 && p.monthsNeeded <= 36);
+            const longTerm = allPredictions.predictions.filter(p => p.monthsNeeded > 36);
+
+            if (shortTerm.length > 0) {
+                html += `<div class="prediction-group">
+                    <h5 style="color: var(--success-dark); margin-bottom: 0.5rem;"><i class="fas fa-rocket"></i> Short Term (Next 12 months)</h5>
+                    <div class="predictions-subgrid">`;
+
+                shortTerm.forEach(prediction => {
+                    html += this.renderBeltPredictionItem(prediction, 'short-term');
+                });
+
+                html += `</div></div>`;
+            }
+
+            if (mediumTerm.length > 0) {
+                html += `<div class="prediction-group">
+                    <h5 style="color: var(--warning-dark); margin-bottom: 0.5rem;"><i class="fas fa-calendar-alt"></i> Medium Term (1-3 years)</h5>
+                    <div class="predictions-subgrid">`;
+
+                mediumTerm.forEach(prediction => {
+                    html += this.renderBeltPredictionItem(prediction, 'medium-term');
+                });
+
+                html += `</div></div>`;
+            }
+
+            if (longTerm.length > 0) {
+                html += `<div class="prediction-group">
+                    <h5 style="color: var(--text-secondary); margin-bottom: 0.5rem;"><i class="fas fa-mountain"></i> Long Term (3+ years)</h5>
+                    <div class="predictions-subgrid">`;
+
+                longTerm.forEach(prediction => {
+                    html += this.renderBeltPredictionItem(prediction, 'long-term');
+                });
+
+                html += `</div></div>`;
+            }
+
+            html += `</div></div>`;
+
+            // Add note for long-term predictions
+            if (longTerm.length > 0) {
+                html += `
+                    <div class="long-term-note" style="background: var(--warning-light); border: 1px solid var(--warning-border); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+                        <i class="fas fa-info-circle" style="color: var(--warning-primary); margin-top: 0.2rem; flex-shrink: 0;"></i>
+                        <div>
+                            <strong>Long-term Predictions Note:</strong>
+                            <p style="margin: 0.25rem 0 0 0; color: var(--warning-dark); font-size: 0.9rem;">
+                                Predictions beyond 3 years are estimates based on current training patterns.
+                                Actual progress may vary with changes in training intensity and life circumstances.
+                            </p>
+                        </div>
                     </div>
                 `;
             }
         }
-        
-        html += '</div>';
+
         container.innerHTML = html;
     }
 
     /**
-     * Update milestone predictions
+     * Render individual belt prediction item
      */
-    updateMilestonePredictions(milestones) {
-        const container = document.getElementById('milestone-predictions');
-        if (!container) return;
-        
-        if (!milestones || milestones.length === 0) {
-            container.innerHTML = `<p class="text-center">No upcoming milestones to predict.</p>`;
-            return;
-        }
-        
-        let html = '<div class="milestone-list">';
-        milestones.forEach(milestone => {
-            const confidenceClass = milestone.confidence > 70 ? 'high' : milestone.confidence > 40 ? 'medium' : 'low';
-            html += `
-                <div class="milestone-item">
-                    <div class="milestone-icon">${milestone.emoji}</div>
-                    <div class="milestone-info">
-                        <h4>${milestone.name}</h4>
-                        <p>${milestone.hoursNeeded} hours needed (${milestone.hours} total)</p>
-                    </div>
-                    <div class="milestone-estimate">
-                        <span class="time">${milestone.timeEstimate}</span>
-                        <span class="date">${milestone.estimatedDate}</span>
-                        <div class="confidence confidence-${confidenceClass}">
-                            ${milestone.confidence}% confidence
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div>';
-        container.innerHTML = html;
-    }
+    renderBeltPredictionItem(prediction, timeframe) {
+        const confidenceColor = prediction.confidence > 70 ? 'var(--success-dark)' :
+                               prediction.confidence > 50 ? 'var(--warning-dark)' : 'var(--error-dark)';
 
-    /**
-     * Update training trends
-     */
-    updateTrainingTrends(trends) {
-        const container = document.getElementById('training-trends');
-        if (!container) return;
-        
-        const html = `
-            <div class="trends-overview">
-                <div class="trend-item">
-                    <h4><i class="fas fa-chart-line"></i> Overall Trend</h4>
-                    <p class="trend-direction trend-${trends.overall.direction}">
-                        <i class="fas fa-arrow-${trends.overall.direction === 'up' ? 'up' : trends.overall.direction === 'down' ? 'down' : 'right'}"></i>
-                        ${trends.overall.description}
+        const isBlackBelt = prediction.belt.includes('black');
+        const itemClass = `belt-prediction-item ${timeframe} ${isBlackBelt ? 'black-belt' : 'colored-belt'}`;
+
+        return `
+            <div class="${itemClass}" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem;
+                background: var(--bg-secondary);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border-light);
+                transition: all var(--transition-normal);
+                ${isBlackBelt ? 'background: linear-gradient(135deg, #1a1a1a, #333); color: white;' : ''}
+            ">
+                <div class="belt-info">
+                    <h4 style="margin: 0 0 0.25rem 0;">${prediction.beltTitle}</h4>
+                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">
+                        ${prediction.hoursNeeded}h needed (${prediction.requiredHours}h total)
                     </p>
-                    <span class="trend-rate">${trends.overall.rate}% change</span>
                 </div>
-                
-                <div class="trend-item">
-                    <h4><i class="fas fa-clock"></i> Consistency</h4>
-                    <p>Score: ${trends.consistency.score}/100 (${trends.consistency.level})</p>
-                    <span class="trend-status trend-${trends.consistency.trend.toLowerCase().replace(' ', '-')}">${trends.consistency.trend}</span>
-                </div>
-                
-                <div class="trend-item">
-                    <h4><i class="fas fa-calendar-check"></i> Frequency</h4>
-                    <p>Current: ${trends.frequency.current.toFixed(1)} sessions/week</p>
-                    <p>Target: ${trends.frequency.target} sessions/week</p>
-                    <span class="trend-status trend-${trends.frequency.status.toLowerCase().replace(' ', '-')}">${trends.frequency.status}</span>
-                </div>
-                
-                <div class="trend-item">
-                    <h4><i class="fas fa-leaf"></i> Seasonal Pattern</h4>
-                    <p>Best: ${trends.seasonal.bestMonth.month} (${trends.seasonal.bestMonth.hours}h)</p>
-                    <p>Variation: ${trends.seasonal.variation.variation}%</p>
+                <div class="prediction-details" style="text-align: right;">
+                    <div style="font-weight: 600; color: var(--accent-primary); font-size: 1.1rem;">
+                        ${prediction.timeEstimate}
+                    </div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin: 0.25rem 0;">
+                        ${prediction.estimatedDate}
+                    </div>
+                    <div style="
+                        padding: 0.25rem 0.5rem;
+                        border-radius: var(--radius-sm);
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                        color: ${confidenceColor};
+                        background: ${confidenceColor}20;
+                    ">
+                        ${prediction.confidence}% confidence
+                    </div>
                 </div>
             </div>
         `;
-        
-        container.innerHTML = html;
-    }
-
-    /**
-     * Update training recommendations
-     */
-    updateTrainingRecommendations(recommendations) {
-        const container = document.getElementById('training-recommendations');
-        if (!container) return;
-        
-        if (!recommendations || recommendations.length === 0) {
-            container.innerHTML = `<p class="text-center">Great job! No specific recommendations at this time.</p>`;
-            return;
-        }
-        
-        let html = '<div class="recommendations-list">';
-        recommendations.forEach(rec => {
-            const priorityClass = `priority-${rec.priority}`;
-            const priorityIcon = rec.priority === 'high' ? 'exclamation-triangle' : 
-                                rec.priority === 'medium' ? 'info-circle' : 'lightbulb';
-            
-            html += `
-                <div class="recommendation-item ${priorityClass}">
-                    <div class="rec-header">
-                        <i class="fas fa-${priorityIcon}"></i>
-                        <h4>${rec.title}</h4>
-                        <span class="priority-badge">${rec.priority}</span>
-                    </div>
-                    <p class="rec-description">${rec.description}</p>
-                    <p class="rec-action"><strong>Action:</strong> ${rec.action}</p>
-                </div>
-            `;
-        });
-        html += '</div>';
-        container.innerHTML = html;
-    }
-
-    /**
-     * Update weekly pattern display
-     */
-    updateWeeklyPattern(predictions) {
-        const container = document.getElementById('weekly-pattern');
-        if (!container) return;
-        
-        if (!predictions || !predictions.trends || !predictions.trends.overall) {
-            container.innerHTML = `<p>Insufficient data for weekly pattern analysis.</p>`;
-            return;
-        }
-        
-        // Get weekly pattern from predictions (this would need to be added to the predictor)
-        const sessions = storage.getAllSessions();
-        if (sessions.length === 0) {
-            container.innerHTML = `<p>No training data available for pattern analysis.</p>`;
-            return;
-        }
-        
-        // Calculate weekly pattern
-        const weeklyPattern = statisticsPredictor.analyzeTrainingPattern(sessions).weeklyPattern;
-        
-        let html = '<div class="weekly-pattern-chart">';
-        weeklyPattern.forEach(day => {
-            const percentage = day.percentage;
-            const height = Math.max(5, percentage * 2); // Min height of 5px
-            
-            html += `
-                <div class="day-column">
-                    <div class="day-bar" style="height: ${height}px" title="${day.sessionCount} sessions (${percentage}%)"></div>
-                    <div class="day-label">${day.day.substring(0, 3)}</div>
-                    <div class="day-stats">
-                        <small>${day.sessionCount} sessions</small>
-                        <small>${day.averageHours.toFixed(1)}h avg</small>
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div>';
-        
-        container.innerHTML = html;
-    }
-
-    /**
-     * Update predictions (called from UI)
-     */
-    updatePredictions() {
-        if (this.currentView === 'stats') {
-            this.updatePredictionsDisplay();
-        }
     }
 
     /**
