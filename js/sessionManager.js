@@ -245,8 +245,8 @@ class SessionManager {
 
         // Validate duration
         const duration = parseInt(data.duration);
-        if (!duration || duration < 1 || duration > 480) { // Max 8 hours
-            errors.push('Duration must be between 1 and 480 minutes');
+        if (!duration || duration < 1) { 
+            errors.push('Please select a valid training duration');
         }
 
         // Validate training type

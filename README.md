@@ -19,7 +19,6 @@ A modern, interactive web application for tracking Kung Fu training sessions, pr
 
 ### 🏆 Belt Progression System
 - **Realistic Belt System**: White → Yellow → Orange → Green → Blue → Brown → Black
-- **Achievement Requirements**: Based on total hours, weekly consistency, and training variety
 - **Progress Tracking**: Visual progress bars and requirement checklists
 - **Motivational Messages**: Encouraging feedback based on your progress
 - **Belt Unlock Animations**: Spectacular animations when advancing to the next belt
@@ -93,7 +92,7 @@ kungfu-tracker/
 │   ├── storage.js            # Data storage and backend simulation
 │   ├── sessionManager.js     # Session CRUD operations
 │   ├── chartManager.js       # Chart and statistics management
-│   ├── rewardSystem.js       # Belt progression and achievements
+│   ├── rewardSystem.js       # Belt progression
 │   └── uiManager.js          # Dynamic UI rendering
 ├── data/                     # Sample data
 │   └── seed.json             # Initial demo data
@@ -190,7 +189,7 @@ The app uses CSS custom properties for theming. Edit `styles/themes.css` to cust
 ```css
 :root {
     --primary-red: #c41e3a;      /* Main accent color */
-    --primary-gold: #ffd700;     /* Achievement color */
+    --primary-gold: #ffd700;
     --accent-primary: #d32f2f;   /* Primary accent */
     /* Modify these values to change the theme */
 }

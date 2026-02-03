@@ -360,13 +360,6 @@ class Storage {
         return `${year}-W${weekNumber}`;
     }
 
-    getSessionsInLastDays(days) {
-        const sessions = this.getAllSessions();
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - days);
-        return sessions.filter(s => new Date(s.date) >= cutoffDate).length;
-    }
-
     triggerBeltUnlock(belt) {
         // Create custom event for belt unlock
         const event = new CustomEvent('beltUnlocked', {
@@ -405,13 +398,6 @@ class Storage {
                 data[key] = value;
             }
         });
-        
-        // Export achievements
-        const achievements = localStorage.getItem('unlocked_achievements');
-        if (achievements) {
-            data['unlocked_achievements'] = JSON.parse(achievements);
-        }
-        
         return data;
     }
 
@@ -453,9 +439,6 @@ class Storage {
         Object.values(this.keys).forEach(key => {
             localStorage.removeItem(key);
         });
-
-        // Clear achievements specifically
-        localStorage.removeItem('unlocked_achievements');
 
         // Reinitialize the belt system to ensure it starts fresh
         const beltSystem = {

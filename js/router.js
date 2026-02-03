@@ -175,12 +175,12 @@ class Router {
      */
     updateMetaDescription(routeName) {
         const descriptions = {
-            'dashboard': 'Track your Kung Fu training progress and achievements',
+            'dashboard': 'Track your Kung Fu training progress',
             'session-form': 'Add new training sessions to your Kung Fu journey',
             'session-list': 'View and manage all your training sessions',
             'calendar': 'Calendar view of your training schedule',
             'stats': 'Detailed statistics, charts, and future training predictions',
-            'rewards': 'Track your belt progression and achievements'
+            'rewards': 'Track your belt progression'
         };
 
         let metaDesc = document.querySelector('meta[name="description"]');

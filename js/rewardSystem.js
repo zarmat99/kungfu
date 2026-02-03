@@ -1,5 +1,5 @@
 /**
- * Reward System - Handles belt progression and achievements
+ * Reward System - Handles belt progression
  * Manages the Kung Fu belt system with realistic goals and rewards
  */
 
@@ -93,40 +93,6 @@ class RewardSystem {
             { name: 'black-9duan', title: '9th Duan', level: 'Temple Patriarch', badge: '🏛️', duan: 9, description: 'The path becomes living teaching.' }
         ];
         
-        this.achievements = [
-            // Category: Cumulative Hours
-            { id: 'hours-5', name: 'First Step (初出步)', description: 'You have started with consistency.', icon: '🐾', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 5 } },
-            { id: 'hours-15', name: 'Awakening (觉醒)', description: 'Interest transforms into commitment.', icon: '🔹', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 15 } },
-            { id: 'hours-30', name: 'Active Student (勤奋学生)', description: 'You are beginning to get into the practice.', icon: '📘', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 30 } },
-            { id: 'hours-45', name: 'Tenacity (坚韧)', description: 'You have passed the initial threshold.', icon: '💪', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 45 } },
-            { id: 'hours-75', name: 'Momentum (势头)', description: 'Your energy is growing.', icon: '🔥', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 75 } },
-            { id: 'hours-100', name: 'Foundation Wall (基础之墙)', description: 'The foundations are more solid.', icon: '🧱', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 100 } },
-            { id: 'hours-160', name: 'Form (形态)', description: 'Body and mind begin to synchronize.', icon: '🌀', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 160 } },
-            { id: 'hours-190', name: 'Stability (稳定)', description: 'Your practice is regular.', icon: '🪨', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 190 } },
-            { id: 'hours-270', name: 'Fluidity (流动性)', description: 'Techniques and transitions improve.', icon: '🌊', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 270 } },
-            { id: 'hours-350', name: 'Discipline (纪律)', description: 'You have resisted time and fatigue.', icon: '🛡️', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 350 } },
-            { id: 'hours-500', name: 'Refinement (精炼)', description: 'You refine every movement.', icon: '⚒️', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 500 } },
-            { id: 'hours-580', name: 'Final Push (最后冲刺)', description: 'You are about to reach the black belt.', icon: '🧭', category: 'Cumulative Hours', condition: { type: 'totalHours', value: 580 } },
-
-            // Category: Consistency Rewards
-            { id: 'consistency-1', name: 'Regular Start (规律的开始)', description: 'You started training consistently.', icon: '🌱', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 7, value: 2 } },
-            { id: 'consistency-2', name: 'Full Week (完整周)', description: 'An intense week of Kung Fu!', icon: '📆', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 10, value: 3 } },
-            { id: 'consistency-3', name: 'Full Month (满月)', description: 'Maximum monthly commitment achieved.', icon: '🗓️', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 30, value: 8 } },
-            { id: 'consistency-4', name: 'Solid Return (稳固回归)', description: 'You have built a solid cycle.', icon: '🔄', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 60, value: 16 } },
-            { id: 'consistency-5', name: 'Constant Quarter (稳定季度)', description: 'A season of progress.', icon: '📈', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 90, value: 24 } },
-            { id: 'consistency-6', name: 'Half Wheel (半轮)', description: 'Long-term perseverance.', icon: '🕕', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 180, value: 48 } },
-            { id: 'consistency-7', name: 'Wayfinder (寻道者)', description: 'You keep the direction.', icon: '🧭', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 270, value: 72 } },
-            { id: 'consistency-8', name: 'Full Year (完整年)', description: 'A whole annual cycle of practice.', icon: '🔄', category: 'Consistency Rewards', condition: { type: 'sessionsLastDays', days: 365, value: 96 } },
-
-            // Category: Session Milestones
-            { id: 'sessions-100', name: 'Kung Fu Traveler (功夫旅行家)', description: 'A hundred steps on the path.', icon: '🗺️', category: 'Session Milestones', condition: { type: 'totalSessions', value: 100 } },
-            { id: 'sessions-150', name: 'Sage of Practice (修行圣人)', description: 'Dedication is your secret.', icon: '⏳', category: 'Session Milestones', condition: { type: 'totalSessions', value: 150 } },
-            { id: 'sessions-200', name: 'Elder of the Way (道之长老)', description: 'Your consistency inspires others.', icon: '🧙‍♂️', category: 'Session Milestones', condition: { type: 'totalSessions', value: 200 } },
-            { id: 'sessions-250', name: 'Lesson by Lesson (一课一课)', description: 'You build your path with every step.', icon: '🎖️', category: 'Session Milestones', condition: { type: 'totalSessions', value: 250 } },
-            { id: 'sessions-365', name: 'Constant Heart (恒心)', description: 'Your spirit does not waver.', icon: '🪷', category: 'Session Milestones', condition: { type: 'totalSessions', value: 365 } },
-            { id: 'sessions-500', name: 'Eternal Spirit (永恒精神)', description: 'The spirit of Kung Fu lives in you.', icon: '🔥', category: 'Session Milestones', condition: { type: 'totalSessions', value: 500 } }
-        ];
-        
         this.bindEvents();
     }
 
@@ -137,11 +103,6 @@ class RewardSystem {
         // Listen for belt unlock events
         window.addEventListener('beltUnlocked', (event) => {
             this.handleBeltUnlock(event.detail);
-        });
-
-        // Listen for session updates to check achievements
-        window.addEventListener('sessionsUpdated', () => {
-            this.checkAchievements();
         });
     }
 
@@ -363,113 +324,6 @@ class RewardSystem {
             }
         }, 5000);
     }
-
-    /**
-     * Check and award achievements
-     */
-    checkAchievements() {
-        const stats = storage.getStats();
-        const sessions = storage.getAllSessions();
-        
-        this.achievements.forEach(achievement => {
-            if (!this.isAchievementUnlocked(achievement.id)) {
-                if (this.checkAchievementCondition(achievement, stats, sessions)) {
-                    this.unlockAchievement(achievement);
-                }
-            }
-        });
-    }
-
-    /**
-     * Check if achievement is already unlocked
-     */
-    isAchievementUnlocked(achievementId) {
-        const unlockedAchievements = storage.getItem('unlocked_achievements') || [];
-        return unlockedAchievements.includes(achievementId);
-    }
-
-    /**
-     * Check achievement condition
-     */
-    checkAchievementCondition(achievement, stats, sessions) {
-        const condition = achievement.condition;
-        if (!condition) return false;
-
-        switch (condition.type) {
-            case 'totalHours':
-                return (stats.totalHours || 0) >= condition.value;
-            case 'totalSessions':
-                return (stats.totalSessions || 0) >= condition.value;
-            case 'sessionsLastDays':
-                return storage.getSessionsInLastDays(condition.days) >= condition.value;
-            // Keep other conditions if they exist, or add new ones.
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Unlock achievement
-     */
-    unlockAchievement(achievement) {
-        const unlockedAchievements = storage.getItem('unlocked_achievements') || [];
-        unlockedAchievements.push(achievement.id);
-        storage.setItem('unlocked_achievements', unlockedAchievements);
-        
-        this.showAchievementUnlockAnimation(achievement);
-        this.playBeltUnlockSound();
-        this.createConfetti(0.25, 0.6);
-    }
-
-    /**
-     * Show achievement unlock ANIMATION (similar to belt unlock)
-     */
-    showAchievementUnlockAnimation(achievement) {
-        const overlay = document.createElement('div');
-        overlay.className = 'achievement-unlock-overlay';
-
-        overlay.innerHTML = `
-            <div class="achievement-unlock-content">
-                <h2 class="achievement-unlock-title">Achievement Unlocked!</h2>
-                <div class="achievement-unlock-icon">${achievement.icon}</div>
-                <p class="achievement-unlock-name">${achievement.name}</p>
-                <p class="achievement-unlock-description">${achievement.description}</p>
-                <button class="btn btn-primary" onclick="this.parentElement.parentElement.remove()">
-                    Continue (继续)
-                </button>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
-
-        // Auto-remove after 8 seconds
-        setTimeout(() => {
-            if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
-            }
-        }, 8000);
-    }
-
-    /**
-     * Get unlocked achievements
-     */
-    getUnlockedAchievements() {
-        const unlockedIds = storage.getItem('unlocked_achievements') || [];
-        return this.achievements.filter(achievement => 
-            unlockedIds.includes(achievement.id)
-        );
-    }
-
-    /**
-     * Get locked achievements
-     */
-    getLockedAchievements() {
-        const unlockedIds = storage.getItem('unlocked_achievements') || [];
-        return this.achievements.filter(achievement => 
-            !unlockedIds.includes(achievement.id)
-        );
-    }
-
     /**
      * Get all belts with unlock status
      */

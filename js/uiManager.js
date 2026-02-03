@@ -120,7 +120,6 @@ class UIManager {
             'calendar',
             'stats',
             'rewards',
-            'achievements',
             'settings'
         ];
 
@@ -169,8 +168,6 @@ class UIManager {
                 return this.createStatsComponent();
             case 'rewards':
                 return this.createRewardsComponent();
-            case 'achievements':
-                return this.createAchievementsComponent();
             case 'settings':
                 return this.createSettingsComponent();
             default:
@@ -214,10 +211,6 @@ class UIManager {
                             <i class="fas fa-trophy"></i>
                             <span>Belts</span>
                         </div>
-                        <div class="nav-item" data-view="achievements">
-                            <i class="fas fa-medal"></i>
-                            <span>Achievements</span>
-                        </div>
                         <div class="nav-item" data-view="settings">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
@@ -256,7 +249,7 @@ class UIManager {
                             <div class="form-group">
                                 <label for="session-duration" class="form-label">Duration (minutes)</label>
                                 <input type="number" id="session-duration" name="duration" class="form-input" 
-                                       min="1" max="480" required placeholder="60">
+                                       min="1" required placeholder="60">
                                 <div id="effective-hours-display" class="effective-hours-info" style="display: none;">
                                     <small>Effective training hours: <span id="effective-hours-value">0</span></small>
                                 </div>
@@ -468,23 +461,6 @@ class UIManager {
     }
 
     /**
-     * Create achievements component
-     */
-    createAchievementsComponent() {
-        return `
-            <div class="view" id="achievements-view">
-                <div class="main-header">
-                    <h1 class="view-title">Achievements</h1>
-                    <p class="view-subtitle">Your collection of unlocked badges and martial arts honors</p>
-                </div>
-                <div class="achievements-grid" id="achievements-grid">
-                    <!-- Achievements will be dynamically loaded here -->
-                </div>
-            </div>
-        `;
-    }
-
-    /**
      * Create settings component
      */
     createSettingsComponent() {
@@ -506,7 +482,7 @@ class UIManager {
                     </div>
                     <div class="setting-card card">
                         <h3>Danger Zone</h3>
-                        <p>Permanently delete all your sessions, progress, and achievements. This cannot be undone.</p>
+                        <p>Permanently delete all your sessions and progress. This cannot be undone.</p>
                         <div class="form-actions">
                             <button class="btn btn-error" id="clear-data-btn"><i class="fas fa-exclamation-triangle"></i> Clear All Data</button>
                         </div>
@@ -557,9 +533,6 @@ class UIManager {
                 break;
             case 'rewards':
                 contentDiv.innerHTML = this.components.rewards;
-                break;
-            case 'achievements':
-                contentDiv.innerHTML = this.components.achievements;
                 break;
             case 'settings':
                 contentDiv.innerHTML = this.components.settings;
@@ -659,9 +632,6 @@ class UIManager {
                 break;
             case 'rewards':
                 this.updateBeltDisplay();
-                break;
-            case 'achievements':
-                this.updateAchievements();
                 break;
             case 'settings':
                 this.initializeSettings();
@@ -1658,73 +1628,6 @@ class UIManager {
             card.classList.add('animate-fadeIn');
         });
     }
-
-    /**
-     * Update achievements display
-     */
-    updateAchievements() {
-        const grid = document.getElementById('achievements-grid');
-        if (!grid) return;
-
-        // 1. Get standard achievements
-        const unlockedAchievements = rewardSystem.getUnlockedAchievements();
-        const lockedAchievements = rewardSystem.getLockedAchievements();
-        const allAchievements = [...unlockedAchievements, ...lockedAchievements];
-
-        // Group standard achievements by category
-        const categories = allAchievements.reduce((acc, achievement) => {
-            const category = achievement.category || 'General';
-            if (!acc[category]) {
-                acc[category] = [];
-            }
-            acc[category].push(achievement);
-            return acc;
-        }, {});
-
-        // 2. Get sashes and add them as a new "Sashes" category
-        const allSashes = rewardSystem.getAllBelts();
-        categories['Sashes'] = allSashes.map(sash => ({
-            id: sash.name,
-            name: sash.title,
-            description: sash.description,
-            icon: sash.badge, // Use the badge property from the belt definition
-            unlocked: sash.unlocked
-        }));
-        
-        // Define the order for a logical layout
-        const categoryOrder = ['Sashes', 'Cumulative Hours', 'Consistency Rewards', 'Session Milestones'];
-
-        let html = '';
-
-        // 3. Render all categories in the specified order
-        for (const categoryName of categoryOrder) {
-            if (categories[categoryName]) {
-                const achievementsInCategory = categories[categoryName];
-                html += `<h2 class="achievements-category-title">${categoryName}</h2>`;
-
-                achievementsInCategory.forEach(achievement => {
-                    const isUnlocked = achievement.unlocked !== undefined 
-                        ? achievement.unlocked 
-                        : unlockedAchievements.some(a => a.id === achievement.id);
-                    
-                    html += `
-                        <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
-                            <div class="achievement-card-icon">
-                                ${isUnlocked ? achievement.icon : '<i class="fas fa-lock"></i>'}
-                            </div>
-                            <div class="achievement-card-content">
-                                <h3 class="achievement-card-title">${achievement.name}</h3>
-                                <p class="achievement-card-description">${achievement.description}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        grid.innerHTML = html;
-    }
-
     /**
      * Initialize settings page events
      */
@@ -1801,7 +1704,7 @@ class UIManager {
     handleClearData() {
         this.showModal(
             'Are you sure?',
-            `<p>This will permanently delete all your training data, including sessions, progress, and achievements. This action cannot be undone.</p>
+            `<p>This will permanently delete all your training data, including sessions and progress. This action cannot be undone.</p>
              <p><strong>Are you sure you want to proceed?</strong></p>`,
             () => {
                 storage.clearAllData();

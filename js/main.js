@@ -189,9 +189,6 @@ class KungFuTracker {
         // Initialize charts
         this.modules.chartManager.initializeCharts();
         
-        // Check for achievements
-        this.modules.rewardSystem.checkAchievements();
-        
         // Setup periodic updates
         this.setupPeriodicUpdates();
         
@@ -212,12 +209,6 @@ class KungFuTracker {
             }
         }, 5 * 60 * 1000);
 
-        // Check achievements every 10 minutes
-        setInterval(() => {
-            if (document.visibilityState === 'visible') {
-                this.modules.rewardSystem.checkAchievements();
-            }
-        }, 10 * 60 * 1000);
     }
 
     /**
