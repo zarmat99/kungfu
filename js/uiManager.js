@@ -7,7 +7,7 @@ class UIManager {
     constructor() {
         this.currentView = 'dashboard';
         this.components = {};
-        this.animationQueue = [];
+        this.competitionStatsSpecialtyFilter = 'all';
         this.bindEvents();
     }
 
@@ -17,16 +17,34 @@ class UIManager {
     bindEvents() {
         // Handle navigation clicks
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('nav-item')) {
-                this.handleNavigation(e.target);
+            const navItem = e.target.closest('.nav-item');
+            if (navItem) {
+                e.preventDefault();
+                this.handleNavigation(navItem);
+                return;
             }
-            
-            if (e.target.classList.contains('session-edit')) {
-                this.handleSessionEdit(e.target);
+
+            const editButton = e.target.closest('.session-edit');
+            if (editButton) {
+                this.handleSessionEdit(editButton);
+                return;
             }
-            
-            if (e.target.classList.contains('session-delete')) {
-                this.handleSessionDelete(e.target);
+
+            const deleteButton = e.target.closest('.session-delete');
+            if (deleteButton) {
+                this.handleSessionDelete(deleteButton);
+                return;
+            }
+
+            const competitionEditButton = e.target.closest('.competition-edit');
+            if (competitionEditButton) {
+                this.handleCompetitionEdit(competitionEditButton);
+                return;
+            }
+
+            const competitionDeleteButton = e.target.closest('.competition-delete');
+            if (competitionDeleteButton) {
+                this.handleCompetitionDelete(competitionDeleteButton);
             }
         });
 
@@ -39,35 +57,30 @@ class UIManager {
 
         // Handle period selector for training hours chart
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('period-btn')) {
-                this.handlePeriodSelection(e.target);
+            const periodButton = e.target.closest('.period-btn');
+            if (periodButton) {
+                this.handlePeriodSelection(periodButton);
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'competition-stats-specialty-filter') {
+                this.competitionStatsSpecialtyFilter = e.target.value || 'all';
+                this.updateCompetitionStatistics();
             }
         });
 
         // Handle modal close
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
-                this.closeModal();
+                this.hideModal();
             }
         });
 
         // Handle escape key for modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.closeModal();
-            }
-        });
-
-        // Handle filter changes and search
-        document.addEventListener('change', (e) => {
-            if (e.target.classList.contains('session-filter')) {
-                this.handleFilterChange(e.target);
-            }
-        });
-
-        document.addEventListener('input', (e) => {
-            if (e.target.id === 'session-search') {
-                this.handleSearchChange(e.target.value);
+                this.hideModal();
             }
         });
 
@@ -76,6 +89,23 @@ class UIManager {
             this.updateSessionsList(e.detail?.sessions);
             if (this.currentView === 'dashboard') {
                 this.updateDashboard();
+            }
+            if (this.currentView === 'calendar') {
+                this.updateCalendarDisplay();
+            }
+        });
+
+        // Listen for competitions updates
+        window.addEventListener('competitionsUpdated', (e) => {
+            this.updateCompetitionsList(e.detail?.competitions);
+            if (this.currentView === 'stats') {
+                this.updateCompetitionStatistics();
+            }
+            if (this.currentView === 'dashboard') {
+                this.updateDashboard();
+            }
+            if (this.currentView === 'calendar') {
+                this.updateCalendarDisplay();
             }
         });
 
@@ -87,6 +117,15 @@ class UIManager {
             if(this.currentView === 'dashboard') {
                 this.updateDashboardBeltProgress();
                 this.updateDashboard();
+            }
+        });
+
+        // Listen for prediction updates only once
+        window.addEventListener('simplePredictionsUpdated', () => {
+            if (this.currentView === 'stats') {
+                this.updateTrainingStatistics();
+                this.updateBeltPredictions();
+                this.updateSimplePredictions();
             }
         });
 
@@ -117,6 +156,8 @@ class UIManager {
             'header',
             'session-form',
             'session-list',
+            'competition-form',
+            'competition-list',
             'calendar',
             'stats',
             'rewards',
@@ -162,6 +203,10 @@ class UIManager {
                 return this.createSessionFormComponent();
             case 'session-list':
                 return this.createSessionListComponent();
+            case 'competition-form':
+                return this.createCompetitionFormComponent();
+            case 'competition-list':
+                return this.createCompetitionListComponent();
             case 'calendar':
                 return this.createCalendarComponent();
             case 'stats':
@@ -198,6 +243,14 @@ class UIManager {
                         <div class="nav-item" data-view="session-list">
                             <i class="fas fa-list"></i>
                             <span>Sessions</span>
+                        </div>
+                        <div class="nav-item" data-view="competition-form">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Competition</span>
+                        </div>
+                        <div class="nav-item" data-view="competition-list">
+                            <i class="fas fa-trophy"></i>
+                            <span>Competitions</span>
                         </div>
                         <div class="nav-item" data-view="calendar">
                             <i class="fas fa-calendar"></i>
@@ -322,6 +375,111 @@ class UIManager {
     }
 
     /**
+     * Create competition form component
+     */
+    createCompetitionFormComponent() {
+        return `
+            <div class="competition-form-container">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="form-title">Add New Competition</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="competition-form" class="competition-form">
+                            <div class="competition-main-fields">
+                                <div class="form-group">
+                                    <label for="competition-date" class="form-label">Competition Date</label>
+                                    <input type="date" id="competition-date" name="date" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="competition-location" class="form-label">Location</label>
+                                    <input type="text" id="competition-location" name="location" class="form-input" placeholder="City, venue, country...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="competition-type" class="form-label">Competition Type</label>
+                                    <input type="text" id="competition-type" name="competitionType" class="form-input" placeholder="Regional, National, Open...">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="competition-notes" class="form-label">Competition Notes (optional)</label>
+                                <textarea id="competition-notes" name="notes" class="form-textarea" placeholder="General notes about this competition..."></textarea>
+                            </div>
+
+                            <div id="specialties-container" class="specialties-container"></div>
+
+                            <div class="form-actions add-specialty-actions">
+                                <button type="button" id="add-specialty-btn" class="btn btn-secondary">
+                                    <i class="fas fa-plus"></i>
+                                    Add Specialty
+                                </button>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    <span class="competition-submit-text">Add Competition</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="window.competitionManager.cancelEdit()">
+                                    <i class="fas fa-times"></i>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Create competition list component
+     */
+    createCompetitionListComponent() {
+        const specialtyOptions = window.competitionManager.getSpecialtyTypes().map(type =>
+            `<option value="${type}">${type}</option>`
+        ).join('');
+
+        const medalOptions = window.competitionManager.getMedalOptions().map(option =>
+            `<option value="${option.value}">${option.label}</option>`
+        ).join('');
+
+        return `
+            <div class="competition-list-container">
+                <div class="filters-container">
+                    <div class="filters-row">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="competition-search" class="form-input" placeholder="Search by location, specialty, opponent...">
+                        </div>
+                        <div class="form-group">
+                            <select name="specialty" class="form-select competition-filter">
+                                <option value="all">All Specialties</option>
+                                ${specialtyOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select name="medal" class="form-select competition-filter">
+                                <option value="all">All Medals</option>
+                                ${medalOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="date" name="startDate" class="form-input competition-filter" placeholder="Start Date">
+                        </div>
+                        <div class="form-group">
+                            <input type="date" name="endDate" class="form-input competition-filter" placeholder="End Date">
+                        </div>
+                    </div>
+                </div>
+                <div id="competitions-container" class="competitions-grid">
+                    <!-- Competitions will be rendered here -->
+                </div>
+            </div>
+        `;
+    }
+
+    /**
      * Create calendar component
      */
     createCalendarComponent() {
@@ -390,6 +548,16 @@ class UIManager {
                     </div>
                     <div class="card-body" id="training-statistics">
                         <!-- Training statistics will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Competition Statistics -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-trophy"></i> Competition Statistics</h2>
+                    </div>
+                    <div class="card-body" id="competition-statistics">
+                        <!-- Competition statistics will be loaded here -->
                     </div>
                 </div>
 
@@ -525,6 +693,12 @@ class UIManager {
             case 'session-list':
                 contentDiv.innerHTML = this.components['session-list'];
                 break;
+            case 'competition-form':
+                contentDiv.innerHTML = this.components['competition-form'];
+                break;
+            case 'competition-list':
+                contentDiv.innerHTML = this.components['competition-list'];
+                break;
             case 'calendar':
                 contentDiv.innerHTML = this.components.calendar;
                 break;
@@ -605,6 +779,26 @@ class UIManager {
                             <!-- Belt progress will be rendered here -->
                         </div>
                     </div>
+
+                    <div class="recent-competitions card">
+                        <div class="card-header">
+                            <h3>Recent Competitions</h3>
+                            <a href="#" class="nav-item" data-view="competition-list">View All</a>
+                        </div>
+                        <div class="card-body" id="dashboard-recent-competitions">
+                            <!-- Recent competitions will be rendered here -->
+                        </div>
+                    </div>
+
+                    <div class="dashboard-medals card">
+                        <div class="card-header">
+                            <h3>Medals</h3>
+                            <a href="#" class="nav-item" data-view="stats">View Details</a>
+                        </div>
+                        <div class="card-body" id="dashboard-medals">
+                            <!-- Medal summary will be rendered here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -623,6 +817,12 @@ class UIManager {
                 break;
             case 'session-list':
                 this.updateSessionsList();
+                break;
+            case 'competition-form':
+                this.initializeCompetitionForm();
+                break;
+            case 'competition-list':
+                this.updateCompetitionsList();
                 break;
             case 'calendar':
                 this.initializeCalendar();
@@ -650,6 +850,15 @@ class UIManager {
         
         // Add event listeners for effective hours calculation
         this.setupEffectiveHoursCalculation();
+    }
+
+    /**
+     * Initialize competition form
+     */
+    initializeCompetitionForm() {
+        if (window.competitionManager) {
+            window.competitionManager.initializeForm();
+        }
     }
 
     /**
@@ -699,8 +908,6 @@ class UIManager {
     updateSessionsList(sessions) {
         const container = document.getElementById('sessions-container');
         if (!container) {
-            // Retry after a short delay to ensure DOM is ready
-            setTimeout(() => this.updateSessionsList(sessions), 100);
             return;
         }
 
@@ -767,6 +974,169 @@ class UIManager {
     }
 
     /**
+     * Update competitions list
+     */
+    updateCompetitionsList(competitions) {
+        const container = document.getElementById('competitions-container');
+        if (!container) {
+            return;
+        }
+
+        const competitionsToShow = competitions || (window.competitionManager ? window.competitionManager.getFilteredCompetitions() : []);
+
+        if (competitionsToShow.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-trophy"></i>
+                    <h3>No Competitions Found</h3>
+                    <p>Add your first competition with specialties, match results, and medal outcomes.</p>
+                    <button class="btn btn-primary nav-item" data-view="competition-form">
+                        <i class="fas fa-plus"></i>
+                        Add Your First Competition
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = competitionsToShow.map(competition =>
+            this.createCompetitionCard(competition)
+        ).join('');
+    }
+
+    /**
+     * Create competition card HTML
+     */
+    createCompetitionCard(competition) {
+        const specialties = Array.isArray(competition.specialties) ? competition.specialties : [];
+        const totalMatches = specialties.reduce((sum, specialty) =>
+            sum + (Array.isArray(specialty.matches) ? specialty.matches.length : 0), 0
+        );
+        const totalRounds = specialties.reduce((sum, specialty) => {
+            const matches = Array.isArray(specialty.matches) ? specialty.matches : [];
+            return sum + matches.reduce((matchSum, match) => {
+                const rounds = Array.isArray(match.rounds) ? match.rounds : [];
+                return matchSum + rounds.length;
+            }, 0);
+        }, 0);
+
+        const formatDate = window.competitionManager?.formatDate
+            ? window.competitionManager.formatDate.bind(window.competitionManager)
+            : (date) => new Date(date).toLocaleDateString();
+
+        const getMedalLabel = window.competitionManager?.getMedalLabel
+            ? window.competitionManager.getMedalLabel.bind(window.competitionManager)
+            : (medal) => medal;
+
+        const getMatchResultLabel = window.competitionManager?.getMatchResultLabel
+            ? window.competitionManager.getMatchResultLabel.bind(window.competitionManager)
+            : (result) => result;
+
+        return `
+            <div class="competition-card animate-fadeIn" data-competition-id="${competition.id}">
+                <div class="competition-header">
+                    <div class="session-date">${formatDate(competition.date)}</div>
+                    <div class="competition-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${competition.location}</span>
+                    </div>
+                </div>
+
+                <div class="competition-meta">
+                    <span class="competition-meta-item">
+                        <i class="fas fa-flag-checkered"></i>
+                        ${competition.competitionType || competition.specialties?.[0]?.competitionType || 'N/A'}
+                    </span>
+                    <span class="competition-meta-item">
+                        <i class="fas fa-layer-group"></i>
+                        ${specialties.length} specialties
+                    </span>
+                    <span class="competition-meta-item">
+                        <i class="fas fa-fist-raised"></i>
+                        ${totalMatches} matches
+                    </span>
+                    <span class="competition-meta-item">
+                        <i class="fas fa-stopwatch"></i>
+                        ${totalRounds} rounds
+                    </span>
+                </div>
+
+                <div class="competition-specialties-list">
+                    ${specialties.map(specialty => {
+                        const medal = specialty.medal || 'none';
+                        const matches = Array.isArray(specialty.matches) ? specialty.matches : [];
+                        return `
+                            <div class="competition-specialty-item">
+                                <div class="competition-specialty-header">
+                                    <span class="session-type">${specialty.specialty}</span>
+                                    <span class="medal-badge medal-${medal}">${getMedalLabel(medal)}</span>
+                                </div>
+                                ${specialty.notes ? `<div class="competition-specialty-notes">${specialty.notes}</div>` : ''}
+                                ${matches.length > 0 ? `
+                                    <ul class="competition-match-list">
+                                        ${matches.map(match => `
+                                            <li>
+                                                <strong>${match.opponentName}</strong>
+                                                <span class="match-result-chip ${match.result}">${getMatchResultLabel(match.result)}</span>
+                                                ${Array.isArray(match.rounds) && match.rounds.length > 0 ? `
+                                                    <div class="competition-rounds-summary">
+                                                        ${match.rounds.map((round, roundIndex) => `
+                                                            <span class="round-score-chip">
+                                                                R${roundIndex + 1}: ${round.myPoints ?? '-'}-${round.opponentPoints ?? '-'}
+                                                            </span>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                                ${match.notes ? `<div class="competition-match-notes">${match.notes}</div>` : ''}
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                ` : `
+                                    <div class="competition-empty-note">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>No match/round details recorded.</span>
+                                    </div>
+                                `}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                ${competition.notes ? `<div class="competition-notes">${competition.notes}</div>` : ''}
+
+                <div class="session-actions competition-actions">
+                    <button class="btn btn-icon competition-edit" data-competition-id="${competition.id}" title="Edit Competition">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-icon competition-delete" data-competition-id="${competition.id}" title="Delete Competition">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Handle competition edit
+     */
+    handleCompetitionEdit(target) {
+        const competitionId = target.closest('[data-competition-id]').dataset.competitionId;
+        if (window.competitionManager) {
+            window.competitionManager.editCompetition(competitionId);
+        }
+    }
+
+    /**
+     * Handle competition delete
+     */
+    handleCompetitionDelete(target) {
+        const competitionId = target.closest('[data-competition-id]').dataset.competitionId;
+        if (window.competitionManager) {
+            window.competitionManager.deleteCompetition(competitionId);
+        }
+    }
+
+    /**
      * Initialize calendar
      */
     initializeCalendar() {
@@ -817,11 +1187,24 @@ class UIManager {
         const lastDay = new Date(year, month + 1, 0);
         const today = new Date();
         const sessions = sessionManager.getSessionsForMonth(year, month);
+        const competitions = storage.getAllCompetitions().filter(competition => {
+            if (!competition?.date) {
+                return false;
+            }
+
+            const [compYear, compMonth] = String(competition.date).split('-');
+            return Number(compYear) === year && Number(compMonth) === month + 1;
+        });
         
         // Create session map for quick lookup
         const sessionMap = {};
         sessions.forEach(session => {
             sessionMap[session.date] = (sessionMap[session.date] || 0) + 1;
+        });
+
+        const competitionMap = {};
+        competitions.forEach(competition => {
+            competitionMap[competition.date] = (competitionMap[competition.date] || 0) + 1;
         });
 
         let html = '';
@@ -846,14 +1229,26 @@ class UIManager {
                 String(currentDate.getMonth() + 1).padStart(2, '0') + '-' +
                 String(currentDate.getDate()).padStart(2, '0');
             const isToday = currentDate.toDateString() === today.toDateString();
-            const hasSession = sessionMap[dateStr];
+            const sessionCount = sessionMap[dateStr] || 0;
+            const competitionCount = competitionMap[dateStr] || 0;
+            const hasSession = sessionCount > 0;
+            const hasCompetition = competitionCount > 0;
+            const titleParts = [];
+            if (hasSession) {
+                titleParts.push(`${sessionCount} session${sessionCount === 1 ? '' : 's'}`);
+            }
+            if (hasCompetition) {
+                titleParts.push(`${competitionCount} competition${competitionCount === 1 ? '' : 's'}`);
+            }
             
             let classes = 'calendar-day';
             if (isToday) classes += ' today';
             if (hasSession) classes += ' has-session';
+            if (hasCompetition) classes += ' has-competition';
+            const titleAttr = titleParts.length > 0 ? ` title="${titleParts.join(' | ')}"` : '';
             
             html += `
-                <div class="${classes}" data-date="${dateStr}">
+                <div class="${classes}" data-date="${dateStr}"${titleAttr}>
                     ${day}
                 </div>
             `;
@@ -903,17 +1298,9 @@ class UIManager {
 
         // Initialize all statistics and predictions
         this.updateTrainingStatistics();
+        this.updateCompetitionStatistics();
         this.updateBeltPredictions();
         this.updateSimplePredictions(); // Keep for backward compatibility
-
-        // Listen for simple prediction updates
-        window.addEventListener('simplePredictionsUpdated', () => {
-            if (this.currentView === 'stats') {
-                this.updateTrainingStatistics();
-                this.updateBeltPredictions();
-                this.updateSimplePredictions();
-            }
-        });
     }
 
     /**
@@ -1027,7 +1414,11 @@ class UIManager {
     handleNavigation(navItem) {
         const viewName = navItem.dataset.view;
         if (viewName && viewName !== this.currentView) {
-            this.renderView(viewName);
+            if (window.router) {
+                window.router.navigateTo(viewName);
+            } else {
+                this.renderView(viewName);
+            }
         }
     }
 
@@ -1259,6 +1650,197 @@ class UIManager {
     }
 
     /**
+     * Update competition statistics display
+     */
+    updateCompetitionStatistics() {
+        const container = document.getElementById('competition-statistics');
+        if (!container) return;
+
+        const competitions = (storage.getAllCompetitions() || [])
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (competitions.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-trophy" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                    <h3>No Competition Data Yet</h3>
+                    <p>Add competitions to see medal, match, and round analytics.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const getSpecialtyName = (specialty) => (
+            specialty?.specialty ||
+            specialty?.speciality ||
+            specialty?.type ||
+            specialty?.name ||
+            ''
+        ).trim();
+
+        const managerSpecialties = window.competitionManager?.getSpecialtyTypes
+            ? window.competitionManager.getSpecialtyTypes()
+            : [];
+
+        const specialtiesFromData = Array.from(new Set(
+            competitions.flatMap(competition =>
+                (Array.isArray(competition.specialties) ? competition.specialties : [])
+                    .map(specialty => getSpecialtyName(specialty))
+                    .filter(Boolean)
+            )
+        ));
+
+        const extraSpecialties = specialtiesFromData
+            .filter(specialty => !managerSpecialties.includes(specialty))
+            .sort((a, b) => a.localeCompare(b));
+
+        const availableSpecialties = [...managerSpecialties, ...extraSpecialties];
+
+        if (
+            this.competitionStatsSpecialtyFilter !== 'all' &&
+            !availableSpecialties.includes(this.competitionStatsSpecialtyFilter)
+        ) {
+            this.competitionStatsSpecialtyFilter = 'all';
+        }
+
+        const selectedSpecialty = this.competitionStatsSpecialtyFilter || 'all';
+        const competitionsInScope = selectedSpecialty === 'all'
+            ? competitions
+            : competitions.filter(competition =>
+                (Array.isArray(competition.specialties) ? competition.specialties : [])
+                    .some(specialty => getSpecialtyName(specialty) === selectedSpecialty)
+            );
+
+        const summary = {
+            totalCompetitions: competitionsInScope.length,
+            totalSpecialties: 0,
+            totalMatches: 0,
+            totalRounds: 0
+        };
+
+        const medalCounts = { gold: 0, silver: 0, bronze: 0, none: 0 };
+        const resultCounts = { won: 0, lost: 0, draw: 0 };
+
+        competitionsInScope.forEach(competition => {
+            const specialties = (Array.isArray(competition.specialties) ? competition.specialties : [])
+                .filter(specialty =>
+                    selectedSpecialty === 'all' ||
+                    getSpecialtyName(specialty) === selectedSpecialty
+                );
+
+            summary.totalSpecialties += specialties.length;
+
+            specialties.forEach(specialty => {
+                const medal = specialty.medal || 'none';
+                if (Object.prototype.hasOwnProperty.call(medalCounts, medal)) {
+                    medalCounts[medal] += 1;
+                } else {
+                    medalCounts.none += 1;
+                }
+
+                const matches = Array.isArray(specialty.matches) ? specialty.matches : [];
+                summary.totalMatches += matches.length;
+
+                matches.forEach(match => {
+                    const result = match.result;
+                    if (Object.prototype.hasOwnProperty.call(resultCounts, result)) {
+                        resultCounts[result] += 1;
+                    }
+
+                    const rounds = Array.isArray(match.rounds) ? match.rounds : [];
+                    summary.totalRounds += rounds.length;
+                });
+            });
+        });
+
+        const decidedMatches = resultCounts.won + resultCounts.lost + resultCounts.draw;
+        const winRate = decidedMatches > 0 ? ((resultCounts.won / decidedMatches) * 100).toFixed(1) : '0.0';
+        const avgMatchesPerCompetition = summary.totalCompetitions > 0
+            ? (summary.totalMatches / summary.totalCompetitions).toFixed(1)
+            : '0.0';
+        const avgRoundsPerMatch = summary.totalMatches > 0
+            ? (summary.totalRounds / summary.totalMatches).toFixed(1)
+            : '0.0';
+
+        const recentCompetitions = competitionsInScope.slice(0, 3);
+        const filterOptions = availableSpecialties.map(specialty =>
+            `<option value="${specialty}" ${selectedSpecialty === specialty ? 'selected' : ''}>${specialty}</option>`
+        ).join('');
+        const scopeLabel = selectedSpecialty === 'all' ? 'All Specialties' : selectedSpecialty;
+
+        container.innerHTML = `
+            <div class="competition-stats-toolbar">
+                <div class="form-group">
+                    <label for="competition-stats-specialty-filter" class="form-label">Specialty Scope</label>
+                    <select id="competition-stats-specialty-filter" class="form-select">
+                        <option value="all" ${selectedSpecialty === 'all' ? 'selected' : ''}>All specialties (total)</option>
+                        ${filterOptions}
+                    </select>
+                </div>
+            </div>
+
+            ${competitionsInScope.length === 0 ? `
+                <div class="empty-state" style="text-align: center; padding: 1.5rem;">
+                    <i class="fas fa-filter" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 0.75rem;"></i>
+                    <h3>No data for selected specialty</h3>
+                    <p>Try switching to total or select another specialty.</p>
+                </div>
+            ` : `
+                <div class="statistics-grid competition-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div class="stat-section">
+                        <h4><i class="fas fa-trophy"></i> Competition Overview (${scopeLabel})</h4>
+                        <div class="stat-items">
+                            <div class="stat-item"><strong>Total Competitions:</strong> ${summary.totalCompetitions}</div>
+                            <div class="stat-item"><strong>Total Specialties:</strong> ${summary.totalSpecialties}</div>
+                            <div class="stat-item"><strong>Total Matches:</strong> ${summary.totalMatches}</div>
+                            <div class="stat-item"><strong>Total Rounds:</strong> ${summary.totalRounds}</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-section">
+                        <h4><i class="fas fa-fist-raised"></i> Match Results</h4>
+                        <div class="stat-items">
+                            <div class="stat-item"><strong>Won:</strong> ${resultCounts.won}</div>
+                            <div class="stat-item"><strong>Lost:</strong> ${resultCounts.lost}</div>
+                            <div class="stat-item"><strong>Draw:</strong> ${resultCounts.draw}</div>
+                            <div class="stat-item"><strong>Win Rate:</strong> ${winRate}%</div>
+                            <div class="stat-item"><strong>Avg Rounds/Match:</strong> ${avgRoundsPerMatch}</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-section">
+                        <h4><i class="fas fa-medal"></i> Medal Breakdown</h4>
+                        <div class="stat-items">
+                            <div class="stat-item"><strong>Gold:</strong> ${medalCounts.gold}</div>
+                            <div class="stat-item"><strong>Silver:</strong> ${medalCounts.silver}</div>
+                            <div class="stat-item"><strong>Bronze:</strong> ${medalCounts.bronze}</div>
+                            <div class="stat-item"><strong>No Medal:</strong> ${medalCounts.none}</div>
+                            <div class="stat-item"><strong>Avg Matches/Competition:</strong> ${avgMatchesPerCompetition}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="competition-stats-recent">
+                    <h4><i class="fas fa-clock"></i> Most Recent Competitions</h4>
+                    <ul>
+                        ${recentCompetitions.map(competition => {
+                            const dateLabel = window.competitionManager?.formatDate
+                                ? window.competitionManager.formatDate(competition.date)
+                                : competition.date;
+                            const specialtiesCount = (Array.isArray(competition.specialties) ? competition.specialties : [])
+                                .filter(specialty =>
+                                    selectedSpecialty === 'all' ||
+                                    getSpecialtyName(specialty) === selectedSpecialty
+                                ).length;
+                            return `<li><strong>${dateLabel}</strong> - ${competition.location || 'Unknown location'} (${specialtiesCount} specialties)</li>`;
+                        }).join('')}
+                    </ul>
+                </div>
+            `}
+        `;
+    }
+
+    /**
      * Update belt predictions display
      */
     updateBeltPredictions() {
@@ -1431,6 +2013,12 @@ class UIManager {
         
         // Update recent sessions
         this.updateRecentSessions();
+
+        // Update recent competitions
+        this.updateRecentCompetitions();
+
+        // Update medals summary
+        this.updateDashboardMedals();
         
         // Update belt progress
         this.updateDashboardBeltProgress();
@@ -1467,6 +2055,100 @@ class UIManager {
                     <span class="session-duration">${sessionManager.formatDuration(session.duration)}</span>
                 </div>
                 <div class="session-date">${sessionManager.getRelativeDate(session.date)}</div>
+            </div>
+        `).join('');
+    }
+
+    /**
+     * Update recent competitions on dashboard
+     */
+    updateRecentCompetitions() {
+        const competitions = storage.getAllCompetitions()
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 3);
+
+        const container = document.getElementById('dashboard-recent-competitions');
+        if (!container) return;
+
+        if (competitions.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-trophy"></i>
+                    <p>No competitions yet. Add your first event!</p>
+                </div>
+            `;
+            return;
+        }
+
+        const formatCompetitionDate = window.competitionManager?.formatDate
+            ? window.competitionManager.formatDate.bind(window.competitionManager)
+            : (dateString) => dateString;
+
+        container.innerHTML = competitions.map(competition => {
+            const competitionType = competition.competitionType || competition.specialties?.[0]?.competitionType || 'N/A';
+            const location = competition.location || 'Unknown location';
+            const dateLabel = formatCompetitionDate(competition.date);
+
+            return `
+                <div class="session-summary">
+                    <div class="session-info">
+                        <strong>${location}</strong>
+                        <span class="session-duration">${competitionType}</span>
+                    </div>
+                    <div class="session-date">${dateLabel}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /**
+     * Update medal summary on dashboard
+     */
+    updateDashboardMedals() {
+        const competitions = storage.getAllCompetitions();
+        const container = document.getElementById('dashboard-medals');
+        if (!container) return;
+
+        const medalCounts = { gold: 0, silver: 0, bronze: 0, none: 0 };
+        let totalSpecialties = 0;
+
+        competitions.forEach(competition => {
+            const specialties = Array.isArray(competition.specialties) ? competition.specialties : [];
+            totalSpecialties += specialties.length;
+
+            specialties.forEach(specialty => {
+                const medal = (specialty.medal || 'none').toLowerCase();
+                if (Object.prototype.hasOwnProperty.call(medalCounts, medal)) {
+                    medalCounts[medal] += 1;
+                } else {
+                    medalCounts.none += 1;
+                }
+            });
+        });
+
+        if (totalSpecialties === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-medal"></i>
+                    <p>No medal data yet.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const medalRows = [
+            { key: 'gold', label: 'Gold', className: 'medal-gold' },
+            { key: 'silver', label: 'Silver', className: 'medal-silver' },
+            { key: 'bronze', label: 'Bronze', className: 'medal-bronze' },
+            { key: 'none', label: 'No Medal', className: 'medal-none' }
+        ];
+
+        container.innerHTML = medalRows.map(row => `
+            <div class="session-summary">
+                <div class="session-info">
+                    <span class="medal-badge ${row.className}">${row.label}</span>
+                </div>
+                <div class="session-date dashboard-medal-count">${medalCounts[row.key]}</div>
             </div>
         `).join('');
     }
@@ -1595,26 +2277,6 @@ class UIManager {
             setTimeout(() => {
                 element.classList.remove('animate-pulse');
             }, 1000);
-        }
-    }
-
-    /**
-     * Handle filter changes
-     */
-    handleFilterChange(target) {
-        // Delegate to sessionManager
-        if (window.sessionManager) {
-            sessionManager.handleFilterChange(target);
-        }
-    }
-
-    /**
-     * Handle search changes
-     */
-    handleSearchChange(searchTerm) {
-        // Delegate to sessionManager
-        if (window.sessionManager) {
-            sessionManager.handleSearchChange(searchTerm);
         }
     }
 

@@ -337,59 +337,6 @@ class RewardSystem {
     }
 
     /**
-     * Get belt requirements for display
-     */
-    getBeltRequirementsDisplay(beltName) {
-        const requirements = storage.getBeltRequirements()[beltName] || [];
-        const stats = storage.getStats();
-        
-        return requirements.map(req => ({
-            ...req,
-            completed: storage.checkRequirement(req, stats),
-            progress: this.getRequirementProgress(req, stats),
-            displayValue: this.formatRequirementValue(req, stats)
-        }));
-    }
-
-    /**
-     * Format requirement value for display
-     */
-    formatRequirementValue(requirement, stats) {
-        let current = 0;
-        let target = requirement.value;
-        
-        switch (requirement.type) {
-            case 'totalHours':
-                current = Math.floor(stats.totalHours || 0);
-                return `${current}/${target} hours`;
-            case 'totalSessions':
-                current = stats.totalSessions || 0;
-                return `${current}/${target} sessions`;
-            case 'weeklyConsistency':
-                current = storage.calculateWeeklyConsistency();
-                return `${current}/${target} weeks`;
-            case 'trainingVariety':
-                current = Object.keys(stats.typeDistribution || {}).length;
-                return `${current}/${target} styles`;
-            case 'basicTechniques':
-                current = Math.min(stats.totalSessions || 0, target);
-                return current >= target ? '✓ Learned' : 'In Progress';
-            case 'minimumAge':
-                return '✓ Eligible';
-            case 'teachingHours':
-                const teachingRatio = 0.1;
-                current = Math.floor((stats.totalHours || 0) * teachingRatio);
-                return `${current}/${target} hours`;
-            case 'yearsInArt':
-                const avgHoursPerYear = 50;
-                current = Math.floor((stats.totalHours || 0) / avgHoursPerYear);
-                return `${current}/${target} years`;
-            default:
-                return `${current}/${target}`;
-        }
-    }
-
-    /**
      * Get motivational message based on progress
      */
     getMotivationalMessage() {

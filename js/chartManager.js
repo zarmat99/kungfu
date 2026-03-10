@@ -301,25 +301,6 @@ class ChartManager {
     }
 
     /**
-     * Destroy chart
-     */
-    destroyChart(chartType) {
-        if (this.charts[chartType]) {
-            this.charts[chartType].destroy();
-            delete this.charts[chartType];
-        }
-    }
-
-    /**
-     * Destroy all charts
-     */
-    destroyAllCharts() {
-        Object.keys(this.charts).forEach(chartType => {
-            this.destroyChart(chartType);
-        });
-    }
-
-    /**
      * Get week key for grouping
      */
     getWeekKey(date) {
@@ -414,24 +395,6 @@ class ChartManager {
     }
 
     /**
-     * Get period label for chart dataset
-     */
-    getPeriodLabel() {
-        switch (this.trainingHoursPeriod) {
-            case 'daily':
-                return 'Daily Hours';
-            case 'weekly':
-                return 'Weekly Hours';
-            case 'monthly':
-                return 'Monthly Hours';
-            case 'yearly':
-                return 'Yearly Hours';
-            default:
-                return 'Hours';
-        }
-    }
-
-    /**
      * Add touch gesture support to chart canvas
      */
     addTouchGesturesSupport(canvas) {
@@ -515,65 +478,6 @@ class ChartManager {
             // Recreate the chart with new period
             this.createTrainingHoursChart();
         }
-    }
-
-
-
-    /**
-     * Export chart as image
-     */
-    exportChart(chartType, filename) {
-        const chart = this.charts[chartType];
-        if (!chart) return;
-
-        const link = document.createElement('a');
-        link.download = filename || `${chartType}-chart.png`;
-        link.href = chart.toBase64Image();
-        link.click();
-    }
-
-    /**
-     * Get chart statistics summary
-     */
-    getChartStats() {
-        const stats = storage.getStats();
-        return {
-            totalHours: stats.totalHours,
-            totalSessions: stats.totalSessions,
-            monthlyAverage: stats.monthlyHours,
-            mostPopularType: this.getMostPopularTrainingType(stats.typeDistribution),
-            consistency: this.getConsistencyScore()
-        };
-    }
-
-    /**
-     * Get most popular training type
-     */
-    getMostPopularTrainingType(distribution) {
-        if (!distribution || Object.keys(distribution).length === 0) {
-            return 'None';
-        }
-        
-        return Object.entries(distribution)
-            .sort(([,a], [,b]) => b - a)[0][0];
-    }
-
-    /**
-     * Calculate consistency score (0-100)
-     */
-    getConsistencyScore() {
-        const sessions = storage.getAllSessions();
-        if (sessions.length === 0) return 0;
-        
-        const last30Days = sessions.filter(session => {
-            const sessionDate = new Date(session.date);
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            return sessionDate >= thirtyDaysAgo;
-        });
-        
-        const uniqueDays = new Set(last30Days.map(session => session.date)).size;
-        return Math.round((uniqueDays / 30) * 100);
     }
 }
 

@@ -7,6 +7,7 @@ class Storage {
     constructor() {
         this.keys = {
             SESSIONS: 'kungfu_sessions',
+            COMPETITIONS: 'kungfu_competitions',
             SETTINGS: 'kungfu_settings',
             BELTS: 'kungfu_belts',
             STATS: 'kungfu_stats'
@@ -32,6 +33,11 @@ class Storage {
                 firstLaunch: true
             };
             this.setItem(this.keys.SETTINGS, defaultSettings);
+        }
+
+        // Initialize competitions if not exists
+        if (!localStorage.getItem(this.keys.COMPETITIONS)) {
+            this.setItem(this.keys.COMPETITIONS, []);
         }
 
         // Initialize belt system
@@ -79,16 +85,6 @@ class Storage {
         } catch (error) {
             console.error('Error reading from localStorage:', error);
             return null;
-        }
-    }
-
-    removeItem(key) {
-        try {
-            localStorage.removeItem(key);
-            return true;
-        } catch (error) {
-            console.error('Error removing from localStorage:', error);
-            return false;
         }
     }
 
@@ -185,6 +181,138 @@ class Storage {
         sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         return sessions;
+    }
+
+    /**
+     * Competition CRUD operations
+     */
+    getAllCompetitions() {
+        return this.getItem(this.keys.COMPETITIONS) || [];
+    }
+
+    getCompetitionById(id) {
+        const competitions = this.getAllCompetitions();
+        return competitions.find(competition => competition.id === id) || null;
+    }
+
+    addCompetition(competitionData) {
+        const competitions = this.getAllCompetitions();
+        const newCompetition = {
+            id: this.generateId(),
+            ...competitionData,
+            timestamp: Date.now()
+        };
+
+        competitions.push(newCompetition);
+
+        if (this.setItem(this.keys.COMPETITIONS, competitions)) {
+            return newCompetition;
+        }
+        return null;
+    }
+
+    updateCompetition(id, competitionData) {
+        const competitions = this.getAllCompetitions();
+        const index = competitions.findIndex(competition => competition.id === id);
+
+        if (index !== -1) {
+            competitions[index] = { ...competitions[index], ...competitionData };
+            if (this.setItem(this.keys.COMPETITIONS, competitions)) {
+                return competitions[index];
+            }
+        }
+        return null;
+    }
+
+    deleteCompetition(id) {
+        const competitions = this.getAllCompetitions();
+        const filteredCompetitions = competitions.filter(competition => competition.id !== id);
+
+        if (this.setItem(this.keys.COMPETITIONS, filteredCompetitions)) {
+            return true;
+        }
+        return false;
+    }
+
+    filterCompetitions(filters = {}) {
+        let competitions = this.getAllCompetitions();
+
+        if (filters.startDate) {
+            competitions = competitions.filter(competition =>
+                new Date(competition.date) >= new Date(filters.startDate)
+            );
+        }
+
+        if (filters.endDate) {
+            competitions = competitions.filter(competition =>
+                new Date(competition.date) <= new Date(filters.endDate)
+            );
+        }
+
+        if (filters.specialty && filters.specialty !== 'all') {
+            const specialtyFilter = filters.specialty.toLowerCase();
+            competitions = competitions.filter(competition =>
+                Array.isArray(competition.specialties) &&
+                competition.specialties.some(specialty =>
+                    (specialty.specialty || '').toLowerCase() === specialtyFilter
+                )
+            );
+        }
+
+        if (filters.medal && filters.medal !== 'all') {
+            const medalFilter = filters.medal.toLowerCase();
+            competitions = competitions.filter(competition =>
+                Array.isArray(competition.specialties) &&
+                competition.specialties.some(specialty =>
+                    (specialty.medal || 'none').toLowerCase() === medalFilter
+                )
+            );
+        }
+
+        if (filters.search) {
+            const searchTerm = filters.search.toLowerCase();
+            competitions = competitions.filter(competition => {
+                const location = (competition.location || '').toLowerCase();
+                const competitionType = (
+                    competition.competitionType ||
+                    competition.specialties?.[0]?.competitionType ||
+                    ''
+                ).toLowerCase();
+                const competitionNotes = (competition.notes || '').toLowerCase();
+                const specialties = Array.isArray(competition.specialties) ? competition.specialties : [];
+
+                const specialtyMatch = specialties.some(specialty => {
+                    const specialtyName = (specialty.specialty || '').toLowerCase();
+                    const specialtyNotes = (specialty.notes || '').toLowerCase();
+                    const matches = Array.isArray(specialty.matches) ? specialty.matches : [];
+
+                    const opponentMatch = matches.some(match => {
+                        const opponent = (match.opponentName || '').toLowerCase();
+                        const matchNotes = (match.notes || '').toLowerCase();
+                        const rounds = Array.isArray(match.rounds) ? match.rounds : [];
+                        const roundMatch = rounds.some(round => {
+                            const roundNotes = (round.notes || '').toLowerCase();
+                            const scoreText = `${round.myPoints ?? ''}-${round.opponentPoints ?? ''}`.toLowerCase();
+                            return roundNotes.includes(searchTerm) || scoreText.includes(searchTerm);
+                        });
+                        return opponent.includes(searchTerm) || matchNotes.includes(searchTerm) || roundMatch;
+                    });
+
+                    return specialtyName.includes(searchTerm) ||
+                        specialtyNotes.includes(searchTerm) ||
+                        opponentMatch;
+                });
+
+                return location.includes(searchTerm) ||
+                    competitionType.includes(searchTerm) ||
+                    competitionNotes.includes(searchTerm) ||
+                    specialtyMatch;
+            });
+        }
+
+        competitions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        return competitions;
     }
 
     /**
@@ -410,7 +538,7 @@ class Storage {
             }
 
             // Clear existing data before import
-            this.clearAllData(false); // don't add seed data
+            this.clearAllData();
 
             for (const key in data) {
                 if (Object.hasOwnProperty.call(data, key)) {
@@ -424,12 +552,12 @@ class Storage {
         }
     }
 
-    clearAllData(addSeedData = false) {
+    clearAllData() {
         // Clear all kungfu-related data from localStorage
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith('kungfu-')) {
+            if (key && (key.startsWith('kungfu_') || key.startsWith('kungfu-'))) {
                 keysToRemove.push(key);
             }
         }
@@ -462,6 +590,7 @@ class Storage {
 
         // Initialize empty sessions array
         this.setItem(this.keys.SESSIONS, []);
+        this.setItem(this.keys.COMPETITIONS, []);
 
         // Reset settings to default
         const defaultSettings = {
@@ -472,8 +601,6 @@ class Storage {
         };
         this.setItem(this.keys.SETTINGS, defaultSettings);
 
-        if (addSeedData) {
-        }
     }
 }
 

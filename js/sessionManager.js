@@ -55,13 +55,6 @@ class SessionManager {
     }
 
     /**
-     * Get all training types
-     */
-    getTrainingTypes() {
-        return this.trainingTypes;
-    }
-
-    /**
      * Get training type weights for hour calculation
      */
     getTrainingTypeWeights() {
@@ -98,14 +91,6 @@ class SessionManager {
      */
     getFilteredSessions() {
         return storage.filterSessions(this.filters);
-    }
-
-    /**
-     * Get sessions for specific date
-     */
-    getSessionsForDate(date) {
-        const sessions = storage.getAllSessions();
-        return sessions.filter(session => session.date === date);
     }
 
     /**
@@ -400,30 +385,6 @@ class SessionManager {
     }
 
     /**
-     * Get session statistics
-     */
-    getSessionStats() {
-        return storage.getStats();
-    }
-
-    /**
-     * Get sessions grouped by date for calendar
-     */
-    getSessionsGroupedByDate() {
-        const sessions = storage.getAllSessions();
-        const grouped = {};
-        
-        sessions.forEach(session => {
-            if (!grouped[session.date]) {
-                grouped[session.date] = [];
-            }
-            grouped[session.date].push(session);
-        });
-        
-        return grouped;
-    }
-
-    /**
      * Format duration for display
      */
     formatDuration(minutes) {
@@ -519,46 +480,6 @@ class SessionManager {
         }, 3000);
     }
 
-    /**
-     * Export sessions to JSON
-     */
-    exportSessions() {
-        const data = storage.exportData();
-        const blob = new Blob([JSON.stringify(data, null, 2)], {
-            type: 'application/json'
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `kungfu-sessions-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        this.showSuccessMessage('Sessions exported successfully!');
-    }
-
-    /**
-     * Import sessions from JSON
-     */
-    importSessions(file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (storage.importData(data)) {
-                    this.showSuccessMessage('Sessions imported successfully!');
-                    this.refreshSessions();
-                } else {
-                    throw new Error('Failed to import data');
-                }
-            } catch (error) {
-                this.showErrorMessage('Invalid file format or corrupted data');
-            }
-        };
-        reader.readAsText(file);
-    }
 }
 
 // Create global session manager instance

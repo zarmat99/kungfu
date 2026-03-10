@@ -9,6 +9,7 @@ class KungFuTracker {
         this.modules = {
             storage: null,
             sessionManager: null,
+            competitionManager: null,
             chartManager: null,
             rewardSystem: null,
             simplePredictor: null,
@@ -127,6 +128,7 @@ class KungFuTracker {
         // Just reference them here
         this.modules.storage = window.storage;
         this.modules.sessionManager = window.sessionManager;
+        this.modules.competitionManager = window.competitionManager;
         this.modules.chartManager = window.chartManager;
         this.modules.rewardSystem = window.rewardSystem;
         this.modules.simplePredictor = window.simplePredictor;
@@ -236,6 +238,14 @@ class KungFuTracker {
                         e.preventDefault();
                         this.modules.router.navigateTo('session-list');
                         break;
+                    case 'k':
+                        e.preventDefault();
+                        this.modules.router.navigateTo('competition-form');
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        this.modules.router.navigateTo('competition-list');
+                        break;
                     case 'c':
                         e.preventDefault();
                         this.modules.router.navigateTo('calendar');
@@ -269,6 +279,8 @@ class KungFuTracker {
             { key: 'Ctrl+H', description: 'Go to Dashboard' },
             { key: 'Ctrl+N', description: 'Add New Session' },
             { key: 'Ctrl+S', description: 'View Sessions' },
+            { key: 'Ctrl+K', description: 'Add Competition' },
+            { key: 'Ctrl+M', description: 'View Competitions' },
             { key: 'Ctrl+C', description: 'View Calendar' },
             { key: 'Ctrl+T', description: 'View Statistics' },
             { key: 'Ctrl+B', description: 'View Belts' },
@@ -315,7 +327,12 @@ class KungFuTracker {
 
         // Preload critical routes
         if (this.modules.router) {
-            this.modules.router.preloadRoutes(['session-form', 'session-list']);
+            this.modules.router.preloadRoutes([
+                'session-form',
+                'session-list',
+                'competition-form',
+                'competition-list'
+            ]);
         }
     }
 
@@ -337,6 +354,7 @@ class KungFuTracker {
             // Refresh data when app becomes visible
             if (this.isInitialized) {
                 this.modules.sessionManager.refreshSessions();
+                this.modules.competitionManager.refreshCompetitions();
                 this.modules.chartManager.updateCharts();
             }
         } else {
@@ -486,44 +504,6 @@ class KungFuTracker {
         window.dispatchEvent(event);
     }
 
-    /**
-     * Get application info
-     */
-    getAppInfo() {
-        return {
-            name: 'Kung Fu Tracker',
-            version: '1.0.0',
-            initialized: this.isInitialized,
-            loadTime: Date.now() - this.startTime,
-            modules: Object.keys(this.modules),
-            userAgent: navigator.userAgent,
-            storage: this.modules.storage?.getStats(),
-            settings: this.modules.storage?.getSettings()
-        };
-    }
-
-    /**
-     * Export application data
-     */
-    exportAppData() {
-        if (!this.modules.storage) return null;
-        
-        return {
-            appInfo: this.getAppInfo(),
-            data: this.modules.storage.exportData(),
-            exportedAt: new Date().toISOString()
-        };
-    }
-
-    /**
-     * Reset application data
-     */
-    resetAppData() {
-        if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
-            this.modules.storage.clearAllData();
-            location.reload();
-        }
-    }
 }
 
 // Additional CSS for application-specific styles

@@ -7,7 +7,6 @@ class Router {
     constructor() {
         this.routes = new Map();
         this.currentRoute = null;
-        this.history = [];
         this.setupRoutes();
         this.bindEvents();
     }
@@ -19,43 +18,55 @@ class Router {
         this.routes.set('dashboard', {
             path: '/',
             component: 'dashboard',
-            title: 'Dashboard - Kung Fu Tracker',
-            requiresAuth: false
+            title: 'Dashboard - Kung Fu Tracker'
         });
 
         this.routes.set('session-form', {
             path: '/add-session',
             component: 'session-form',
-            title: 'Add Session - Kung Fu Tracker',
-            requiresAuth: false
+            title: 'Add Session - Kung Fu Tracker'
         });
 
         this.routes.set('session-list', {
             path: '/sessions',
             component: 'session-list',
-            title: 'Training Sessions - Kung Fu Tracker',
-            requiresAuth: false
+            title: 'Training Sessions - Kung Fu Tracker'
+        });
+
+        this.routes.set('competition-form', {
+            path: '/add-competition',
+            component: 'competition-form',
+            title: 'Add Competition - Kung Fu Tracker'
+        });
+
+        this.routes.set('competition-list', {
+            path: '/competitions',
+            component: 'competition-list',
+            title: 'Competitions - Kung Fu Tracker'
         });
 
         this.routes.set('calendar', {
             path: '/calendar',
             component: 'calendar',
-            title: 'Calendar - Kung Fu Tracker',
-            requiresAuth: false
+            title: 'Calendar - Kung Fu Tracker'
         });
 
         this.routes.set('stats', {
             path: '/statistics',
             component: 'stats',
-            title: 'Statistics - Kung Fu Tracker',
-            requiresAuth: false
+            title: 'Statistics - Kung Fu Tracker'
         });
 
         this.routes.set('rewards', {
             path: '/belts',
             component: 'rewards',
-            title: 'Belt System - Kung Fu Tracker',
-            requiresAuth: false
+            title: 'Belt System - Kung Fu Tracker'
+        });
+
+        this.routes.set('settings', {
+            path: '/settings',
+            component: 'settings',
+            title: 'Settings - Kung Fu Tracker'
         });
     }
 
@@ -75,14 +86,6 @@ class Router {
             this.handleHashChange();
         });
 
-        // Handle route navigation clicks
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-route]')) {
-                e.preventDefault();
-                const route = e.target.getAttribute('data-route');
-                this.navigateTo(route);
-            }
-        });
     }
 
     /**
@@ -96,22 +99,12 @@ class Router {
             return this.navigateTo('dashboard');
         }
 
-        // Check authentication if required
-        if (route.requiresAuth && !this.isAuthenticated()) {
-            return this.navigateTo('login');
-        }
-
         try {
             // Show loading state
             this.showRouteLoading();
 
-            // Add to history
-            if (addToHistory) {
-                this.addToHistory(routeName);
-            }
-
             // Update browser URL and title
-            this.updateBrowser(route, routeName);
+            this.updateBrowser(route, routeName, addToHistory);
 
             // Load and render component
             await this.loadComponent(route.component);
@@ -145,21 +138,27 @@ class Router {
     /**
      * Update browser URL and title
      */
-    updateBrowser(route, routeName) {
+    updateBrowser(route, routeName, addToHistory = true) {
         // Update page title
         document.title = route.title;
 
         // Update URL without page reload (skip for file:// protocol)
         if (window.location.protocol !== 'file:') {
-            const url = window.location.origin + route.path;
-            
-            if (window.location.href !== url) {
+            if (window.location.pathname !== route.path) {
                 try {
-                    window.history.pushState(
-                        { route: routeName },
-                        route.title,
-                        route.path
-                    );
+                    if (addToHistory) {
+                        window.history.pushState(
+                            { route: routeName },
+                            route.title,
+                            route.path
+                        );
+                    } else {
+                        window.history.replaceState(
+                            { route: routeName },
+                            route.title,
+                            route.path
+                        );
+                    }
                 } catch (error) {
                     console.warn('History API not available:', error.message);
                 }
@@ -178,9 +177,12 @@ class Router {
             'dashboard': 'Track your Kung Fu training progress',
             'session-form': 'Add new training sessions to your Kung Fu journey',
             'session-list': 'View and manage all your training sessions',
+            'competition-form': 'Add competitions with specialties, matches, and medal outcomes',
+            'competition-list': 'View and manage your competitions and match results',
             'calendar': 'Calendar view of your training schedule',
             'stats': 'Detailed statistics, charts, and future training predictions',
-            'rewards': 'Track your belt progression'
+            'rewards': 'Track your belt progression',
+            'settings': 'Manage your app settings and data'
         };
 
         let metaDesc = document.querySelector('meta[name="description"]');
@@ -191,52 +193,6 @@ class Router {
         }
         
         metaDesc.content = descriptions[routeName] || 'Kung Fu Training Tracker';
-    }
-
-    /**
-     * Add route to history
-     */
-    addToHistory(routeName) {
-        this.history.push({
-            route: routeName,
-            timestamp: Date.now()
-        });
-
-        // Keep history limited to last 50 entries
-        if (this.history.length > 50) {
-            this.history = this.history.slice(-50);
-        }
-    }
-
-    /**
-     * Go back in history
-     */
-    goBack() {
-        if (this.history.length > 1) {
-            // Remove current route
-            this.history.pop();
-            // Get previous route
-            const previous = this.history[this.history.length - 1];
-            this.navigateTo(previous.route, false);
-        } else {
-            this.navigateTo('dashboard', false);
-        }
-    }
-
-    /**
-     * Go forward in browser history
-     */
-    goForward() {
-        window.history.forward();
-    }
-
-    /**
-     * Refresh current route
-     */
-    refresh() {
-        if (this.currentRoute) {
-            this.navigateTo(this.currentRoute, false);
-        }
     }
 
     /**
@@ -260,20 +216,15 @@ class Router {
             'dashboard': 'dashboard',
             'add': 'session-form',
             'sessions': 'session-list',
+            'add-competition': 'competition-form',
+            'competitions': 'competition-list',
             'calendar': 'calendar',
             'stats': 'stats',
-            'belts': 'rewards'
+            'belts': 'rewards',
+            'settings': 'settings'
         };
 
         return hashRoutes[hash] || null;
-    }
-
-    /**
-     * Check if user is authenticated (placeholder)
-     */
-    isAuthenticated() {
-        // For now, always return true as we don't have authentication
-        return true;
     }
 
     /**
@@ -323,48 +274,6 @@ class Router {
     }
 
     /**
-     * Get current route information
-     */
-    getCurrentRoute() {
-        return {
-            name: this.currentRoute,
-            data: this.routes.get(this.currentRoute),
-            history: this.history
-        };
-    }
-
-    /**
-     * Get all available routes
-     */
-    getAllRoutes() {
-        return Array.from(this.routes.entries()).map(([name, data]) => ({
-            name,
-            ...data
-        }));
-    }
-
-    /**
-     * Check if route exists
-     */
-    routeExists(routeName) {
-        return this.routes.has(routeName);
-    }
-
-    /**
-     * Add new route dynamically
-     */
-    addRoute(name, routeData) {
-        this.routes.set(name, routeData);
-    }
-
-    /**
-     * Remove route
-     */
-    removeRoute(name) {
-        this.routes.delete(name);
-    }
-
-    /**
      * Initialize router
      */
     init() {
@@ -392,45 +301,6 @@ class Router {
         
         // Navigate to initial route
         this.navigateTo(initialRoute, true);
-    }
-
-    /**
-     * Generate URL for route
-     */
-    getRouteUrl(routeName) {
-        const route = this.routes.get(routeName);
-        return route ? route.path : '/';
-    }
-
-    /**
-     * Build breadcrumb navigation
-     */
-    getBreadcrumbs() {
-        const breadcrumbs = [];
-        
-        // Always start with dashboard
-        if (this.currentRoute !== 'dashboard') {
-            breadcrumbs.push({
-                name: 'Dashboard',
-                route: 'dashboard',
-                url: this.getRouteUrl('dashboard')
-            });
-        }
-        
-        // Add current route if not dashboard
-        if (this.currentRoute && this.currentRoute !== 'dashboard') {
-            const currentRouteData = this.routes.get(this.currentRoute);
-            if (currentRouteData) {
-                breadcrumbs.push({
-                    name: currentRouteData.title.split(' - ')[0],
-                    route: this.currentRoute,
-                    url: this.getRouteUrl(this.currentRoute),
-                    current: true
-                });
-            }
-        }
-        
-        return breadcrumbs;
     }
 
     /**
