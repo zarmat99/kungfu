@@ -9,7 +9,7 @@ class CompetitionManager {
             'Taolu',
             'Sanda Light',
             'Tuishou (fixed step)',
-            'Tuischou (moving step)'
+            'Tuishou (moving step)'
         ];
 
         this.medalOptions = ['none', 'bronze', 'silver', 'gold'];
