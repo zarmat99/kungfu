@@ -45,6 +45,24 @@ class UIManager {
             const competitionDeleteButton = e.target.closest('.competition-delete');
             if (competitionDeleteButton) {
                 this.handleCompetitionDelete(competitionDeleteButton);
+                return;
+            }
+
+            const competitionToggle = e.target.closest('.competition-toggle');
+            if (competitionToggle) {
+                this.toggleCompetitionCard(competitionToggle);
+            }
+        });
+
+        // Toggle competition cards with keyboard (Enter / Space)
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') {
+                return;
+            }
+            const competitionToggle = e.target.closest('.competition-toggle');
+            if (competitionToggle) {
+                e.preventDefault();
+                this.toggleCompetitionCard(competitionToggle);
             }
         });
 
@@ -1033,13 +1051,16 @@ class UIManager {
             : (result) => result;
 
         return `
-            <div class="competition-card animate-fadeIn" data-competition-id="${competition.id}">
-                <div class="competition-header">
-                    <div class="session-date">${formatDate(competition.date)}</div>
-                    <div class="competition-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>${competition.location}</span>
+            <div class="competition-card animate-fadeIn collapsed" data-competition-id="${competition.id}">
+                <div class="competition-header competition-toggle" role="button" tabindex="0" aria-expanded="false">
+                    <div class="competition-header-main">
+                        <div class="session-date">${formatDate(competition.date)}</div>
+                        <div class="competition-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${competition.location}</span>
+                        </div>
                     </div>
+                    <i class="fas fa-chevron-down competition-toggle-icon"></i>
                 </div>
 
                 <div class="competition-meta">
@@ -1061,6 +1082,7 @@ class UIManager {
                     </span>
                 </div>
 
+                <div class="competition-details">
                 <div class="competition-specialties-list">
                     ${specialties.map(specialty => {
                         const medal = specialty.medal || 'none';
@@ -1103,6 +1125,7 @@ class UIManager {
                 </div>
 
                 ${competition.notes ? `<div class="competition-notes">${competition.notes}</div>` : ''}
+                </div>
 
                 <div class="session-actions competition-actions">
                     <button class="btn btn-icon competition-edit" data-competition-id="${competition.id}" title="Edit Competition">
@@ -1114,6 +1137,18 @@ class UIManager {
                 </div>
             </div>
         `;
+    }
+
+    /**
+     * Toggle a competition card between collapsed and expanded
+     */
+    toggleCompetitionCard(target) {
+        const card = target.closest('.competition-card');
+        if (!card) {
+            return;
+        }
+        const isCollapsed = card.classList.toggle('collapsed');
+        target.setAttribute('aria-expanded', String(!isCollapsed));
     }
 
     /**

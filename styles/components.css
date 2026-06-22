@@ -1026,6 +1026,39 @@
     margin-bottom: var(--space-sm);
 }
 
+.competition-toggle {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    cursor: pointer;
+    user-select: none;
+}
+
+.competition-toggle:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+.competition-toggle-icon {
+    color: var(--text-secondary);
+    margin-top: var(--space-xs);
+    transition: transform var(--transition-normal);
+}
+
+.competition-card:not(.collapsed) .competition-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.competition-details {
+    overflow: hidden;
+}
+
+.competition-card.collapsed .competition-details {
+    display: none;
+}
+
 .competition-location {
     display: inline-flex;
     align-items: center;
